@@ -261,5 +261,31 @@ class MainTest(Isolated):
         self.assertEqual(code, 1)
         self.assertIn('client ID', reply['error'])
 
+class GmailSaveTest(Isolated):
+    def account(self):
+        return backend.discover('eu@gmail.com')
+
+    def test_app_password_spaces_are_removed(self):
+        seen = []
+        @backend.contextlib.contextmanager
+        def ok(a, pw, oauth):
+            seen.append(pw)
+            yield None
+        with mock.patch.object(backend, 'incoming', ok), mock.patch.object(backend, 'outgoing', ok), \
+                mock.patch.object(backend, 'secret') as secret:
+            backend.save(self.account(), 'abcd efgh ijkl mnop')
+        self.assertEqual(seen, ['abcdefghijklmnop'] * 2)
+        secret.assert_called_once_with(mock.ANY, 'abcdefghijklmnop')
+
+    def test_refused_login_explains_app_password(self):
+        @backend.contextlib.contextmanager
+        def refused(a, pw, oauth):
+            raise backend.AUTH_ERRORS[0]('[AUTHENTICATIONFAILED] Invalid credentials')
+            yield
+        with mock.patch.object(backend, 'incoming', refused):
+            with self.assertRaisesRegex(ValueError, 'senha de app'):
+                backend.save(self.account(), 'senhanormal')
+
+
 if __name__ == '__main__':
     unittest.main()

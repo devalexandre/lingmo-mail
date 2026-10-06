@@ -91,18 +91,6 @@ MailPopup {
         Mail.discover(emailField.text.trim())
     }
 
-    function providerHint() {
-        const d = domain
-        if (d === "gmail.com" || d === "googlemail.com")
-            return qsTr("O Gmail exige uma senha de app: ative a verificação em duas etapas na sua Conta Google e crie uma em Segurança › Senhas de app. Ou use “Entrar com Google”.")
-        if (["outlook.com", "hotmail.com", "live.com", "msn.com"].indexOf(d) >= 0)
-            return qsTr("Contas Outlook/Hotmail com verificação em duas etapas precisam de uma senha de app, criada em account.microsoft.com › Segurança.")
-        if (d === "yahoo.com" || d.startsWith("yahoo."))
-            return qsTr("O Yahoo exige uma senha de app, criada em Segurança da conta › Gerar senha de app.")
-        if (d === "icloud.com" || d === "me.com" || d === "mac.com")
-            return qsTr("O iCloud exige uma senha específica de app, criada em appleid.apple.com.")
-        return qsTr("Se o seu provedor usa verificação em duas etapas, crie uma senha de app para o E-mail.")
-    }
 
     onOpened: emailField.forceActiveFocus()
     onClosed: {
@@ -193,8 +181,15 @@ MailPopup {
                     onAccepted: dialog.next()
                 }
 
+                SetupGuide {
+                    Layout.fillWidth: true
+                    Layout.topMargin: LingmoUI.Units.smallSpacing
+                    domain: dialog.domain
+                }
+
                 RowLayout {
                     Layout.fillWidth: true
+                    visible: Mail.googleAvailable
                     Rectangle { Layout.fillWidth: true; implicitHeight: 1; color: LingmoUI.Theme.textColor; opacity: 0.12 }
                     Label { text: qsTr("ou"); color: LingmoUI.Theme.disabledTextColor }
                     Rectangle { Layout.fillWidth: true; implicitHeight: 1; color: LingmoUI.Theme.textColor; opacity: 0.12 }
@@ -202,6 +197,7 @@ MailPopup {
 
                 ActionButton {
                     Layout.fillWidth: true
+                    visible: Mail.googleAvailable
                     text: dialog.waitingGoogle ? qsTr("Aguardando o navegador…") : qsTr("Entrar com Google")
                     enabled: !Mail.setupBusy
                     onClicked: {
@@ -367,12 +363,18 @@ MailPopup {
                     enabled: !Mail.setupBusy
                     onAccepted: if (connectButton.enabled) connectButton.clicked()
                 }
+                SetupGuide {
+                    Layout.fillWidth: true
+                    domain: dialog.domain
+                    onlyMatching: true
+                }
                 Label {
                     Layout.fillWidth: true
                     wrapMode: Text.Wrap
                     color: LingmoUI.Theme.disabledTextColor
                     font.pointSize: LingmoUI.Theme.fontSize * 0.9
-                    text: dialog.providerHint() + " " + qsTr("A senha fica guardada no chaveiro da sessão, não em arquivos.")
+                    text: qsTr("A senha fica guardada no chaveiro da sessão, não em arquivos.")
+                        + (dialog.domain === "gmail.com" && Mail.googleAvailable ? " " + qsTr("Ou use “Entrar com Google”.") : "")
                 }
             }
         }

@@ -169,8 +169,12 @@ LingmoUI.Window {
                         visible: Mail.accountsLoaded
                         horizontalAlignment: Text.AlignHCenter
                         wrapMode: Text.Wrap
-                        text: qsTr("Adicione sua conta do Gmail, Outlook, Yahoo, iCloud ou de qualquer provedor com IMAP ou POP3. Mensagens são mostradas só como texto, sem conteúdo remoto.")
+                        text: qsTr("Adicione sua conta do Gmail, Yahoo, iCloud ou de qualquer provedor com IMAP ou POP3. Mensagens são mostradas só como texto, sem conteúdo remoto.")
                         color: LingmoUI.Theme.disabledTextColor
+                    }
+                    SetupGuide {
+                        Layout.fillWidth: true
+                        visible: Mail.accountsLoaded
                     }
                     ActionButton {
                         Layout.alignment: Qt.AlignHCenter

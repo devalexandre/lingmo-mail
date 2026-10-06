@@ -46,6 +46,8 @@ class MailBridge : public QObject
     Q_PROPERTY(bool setupBusy READ setupBusy NOTIFY busyChanged)
     Q_PROPERTY(QString error READ error NOTIFY errorChanged)
     Q_PROPERTY(QString status READ status NOTIFY statusChanged)
+    // "Entrar com Google" only works with an OAuth client ID configured
+    Q_PROPERTY(bool googleAvailable READ googleAvailable CONSTANT)
 
 public:
     explicit MailBridge(QObject *parent = nullptr);
@@ -67,6 +69,8 @@ public:
     bool setupBusy() const;
     QString error() const { return m_error; }
     QString status() const { return m_status; }
+
+    bool googleAvailable() const;
 
     Q_INVOKABLE void reloadAccounts();
     Q_INVOKABLE void refresh();

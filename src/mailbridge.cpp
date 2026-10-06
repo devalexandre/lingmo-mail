@@ -18,6 +18,7 @@
  */
 
 #include "mailbridge.h"
+#include <QFile>
 
 #include <QDateTime>
 #include <QDesktopServices>
@@ -66,6 +67,16 @@ QDateTime parseDate(const QString &rfc2822)
 MailBridge::MailBridge(QObject *parent)
     : QObject(parent)
 {
+}
+
+bool MailBridge::googleAvailable() const
+{
+    // Same lookup as oauth_config() in backend.py
+    if (!qEnvironmentVariableIsEmpty("LINGMO_GOOGLE_CLIENT_ID"))
+        return true;
+    const QString config = QStandardPaths::writableLocation(QStandardPaths::GenericConfigLocation);
+    return QFile::exists(QStringLiteral("/etc/lingmo-mail/google-oauth.json"))
+        || QFile::exists(config + QStringLiteral("/lingmo-online-accounts/google-oauth.json"));
 }
 
 MailBridge::~MailBridge()

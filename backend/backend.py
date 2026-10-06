@@ -290,9 +290,19 @@ def save(account, password):
     a['id'] = old['id'] if old else str(uuid.uuid4())
     if not password and old and any(a.get(k) != old.get(k) for k in ('incomingHost','incomingPort','smtpHost','smtpPort','username','smtpUsername','auth')):
         raise ValueError('Informe novamente a senha ao alterar servidores ou autenticação.')
+    google = a['incomingHost'].lower() == 'imap.gmail.com'
+    if google and a.get('auth') != 'google':
+        # Google shows app passwords as 'abcd efgh ijkl mnop'; the spaces aren't part of it
+        password = password.replace(' ', '')
     pw, oauth = credentials(a, password)
-    with incoming(a, pw, oauth): pass
-    with outgoing(a, pw, oauth): pass
+    try:
+        with incoming(a, pw, oauth): pass
+        with outgoing(a, pw, oauth): pass
+    except AUTH_ERRORS + (smtplib.SMTPAuthenticationError,) as exc:
+        if google and not oauth and not isinstance(exc, IMAP_ABORT):
+            raise ValueError('O Gmail não aceita a senha normal da conta Google. Ative a verificação em duas etapas '
+                             'e crie uma senha de app (16 letras) em myaccount.google.com/apppasswords.')
+        raise
     if password:
         secret(a['id'], password)
     update_accounts(lambda items: [x for x in items if x['id'] != a['id']] + [a])
