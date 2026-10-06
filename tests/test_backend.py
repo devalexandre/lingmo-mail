@@ -287,5 +287,26 @@ class GmailSaveTest(Isolated):
                 backend.save(self.account(), 'senhanormal')
 
 
+class ErrorMessageTest(unittest.TestCase):
+    def run_main(self, exc):
+        out = io.StringIO()
+        with mock.patch.object(backend.sys, 'stdin', io.TextIOWrapper(io.BytesIO(b'{"op":"accounts"}\n'))), \
+                mock.patch.object(backend, 'dispatch', side_effect=exc), mock.patch('sys.stdout', out):
+            backend.main()
+        return json.loads(out.getvalue())['error']
+
+    def test_certificate_error_is_translated(self):
+        import ssl
+        exc = ssl.SSLCertVerificationError(1, '[SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed')
+        self.assertEqual(self.run_main(exc), 'O certificado do servidor não é válido.')
+
+    def test_library_value_errors_are_not_echoed(self):
+        message = self.run_main(UnicodeDecodeError('utf-8', b'\xff', 0, 1, 'segredo'))
+        self.assertNotIn('segredo', message)
+
+    def test_own_messages_are_shown(self):
+        self.assertEqual(self.run_main(ValueError('Selecione uma conta.')), 'Selecione uma conta.')
+
+
 if __name__ == '__main__':
     unittest.main()

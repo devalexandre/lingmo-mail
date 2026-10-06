@@ -1327,7 +1327,9 @@ def main():
         # Never echo protocol responses: they may contain credentials or message data.
         if isinstance(exc, AUTH_ERRORS) and not isinstance(exc, IMAP_ABORT):
             exc = ValueError('O servidor recusou o acesso. Confira o usuário e a senha (ou senha de app).')
-        message = str(exc) if isinstance(exc, ValueError) else {
+        # Only our own messages are plain ValueError: subclasses such as
+        # ssl.SSLCertVerificationError or UnicodeError carry raw library text
+        message = str(exc) if type(exc) is ValueError else {
             'SSLCertVerificationError': 'O certificado do servidor não é válido.',
             'TimeoutError': 'O servidor demorou para responder. Tente novamente.',
             'gaierror': 'Servidor não encontrado. Confira o endereço e a conexão.',
