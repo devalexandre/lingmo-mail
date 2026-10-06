@@ -20,6 +20,25 @@
         <file>qml/ContactsPage.qml</file>
         <file>qml/ContactEditor.qml</file>
         <file>qml/SectionLoader.qml</file>
+        <file>qml/CalendarPage.qml</file>
+        <file>qml/CalendarUtil.js</file>
+        <file>qml/CalendarAccountDialog.qml</file>
+        <file>qml/CalendarAgendaList.qml</file>
+        <file>qml/CalendarDateField.qml</file>
+        <file>qml/CalendarEditDialog.qml</file>
+        <file>qml/CalendarIconButton.qml</file>
+        <file>qml/CalendarList.qml</file>
+        <file>qml/CalendarMiniMonth.qml</file>
+        <file>qml/CalendarMonthView.qml</file>
+        <file>qml/CalendarScopeDialog.qml</file>
+        <file>qml/CalendarTimeField.qml</file>
+        <file>qml/CalendarWeekView.qml</file>
+        <file>qml/EventChip.qml</file>
+        <file>qml/EventDialog.qml</file>
+        <file>qml/InviteCard.qml</file>
+        <file>qml/TasksPage.qml</file>
+        <file>qml/TaskRow.qml</file>
+        <file>qml/TaskDialog.qml</file>
         <file alias="lingmo-mail.svg">data/lingmo-mail.svg</file>
     </qresource>
 </RCC>

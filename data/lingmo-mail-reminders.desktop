@@ -1,0 +1,13 @@
+[Desktop Entry]
+Type=Application
+Name=Mail Reminders
+Name[pt_BR]=Lembretes do E-mail
+Comment=Shows calendar and task reminders
+Comment[pt_BR]=Mostra os lembretes do calendário e das tarefas
+Exec=lingmo-mail --reminders
+Icon=lingmo-mail
+Terminal=false
+NoDisplay=true
+X-GNOME-Autostart-enabled=true
+X-GNOME-Autostart-Delay=10
+X-KDE-autostart-after=panel

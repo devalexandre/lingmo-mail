@@ -25,6 +25,8 @@
 #include <QStandardPaths>
 
 #include "mailbridge.h"
+#include "calendarbridge.h"
+#include "reminderservice.h"
 
 // The Lingmo platform theme doesn't always hand the icon theme over at startup:
 // use the one set in Lingmo Settings.
@@ -53,6 +55,10 @@ static void applyIconTheme()
 
 int main(int argc, char *argv[])
 {
+    // Background reminders (XDG autostart): no window, no QML
+    if (ReminderService::requested(argc, argv))
+        return ReminderService::runHeadless(argc, argv);
+
     QApplication app(argc, argv);
     app.setOrganizationName(QStringLiteral("lingmoos"));
     app.setApplicationName(QStringLiteral("lingmo-mail"));
@@ -64,6 +70,8 @@ int main(int argc, char *argv[])
 
     MailBridge mail;
     qmlRegisterSingletonInstance("Lingmo.Mail", 1, 0, "Mail", &mail);
+    CalendarBridge calendar;
+    qmlRegisterSingletonInstance("Lingmo.Mail", 1, 0, "Calendar", &calendar);
 
     QQmlApplicationEngine engine;
     engine.load(QUrl(QStringLiteral("qrc:/qml/Main.qml")));
