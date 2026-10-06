@@ -1,0 +1,16 @@
+[Desktop Entry]
+Type=Application
+Name=Mail
+Name[pt_BR]=E-mail
+GenericName=Email Client
+GenericName[pt_BR]=Cliente de e-mail
+Comment=Read and send email from your accounts
+Comment[pt_BR]=Leia e envie e-mails das suas contas
+Exec=lingmo-mail
+Icon=lingmo-mail
+Terminal=false
+Categories=Network;Email;
+Keywords=mail;email;e-mail;imap;pop3;smtp;gmail;outlook;
+Keywords[pt_BR]=correio;email;e-mail;imap;pop3;smtp;gmail;outlook;mensagens;
+StartupNotify=true
+SingleMainWindow=true
