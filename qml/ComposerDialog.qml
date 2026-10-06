@@ -77,12 +77,12 @@ MailPopup {
     closePolicy: Popup.NoAutoClose
     Shortcut {
         sequence: "Escape"
-        enabled: dialog.visible && !discardConfirm.visible
+        enabled: dialog.visible && !discardConfirm.visible && !toField.suggesting && !ccField.suggesting
         onActivated: dialog.discard()
     }
     Shortcut {
         sequence: "Ctrl+Return"
-        enabled: dialog.visible && !Mail.sending
+        enabled: dialog.visible && !Mail.sending && !toField.suggesting && !ccField.suggesting
         onActivated: dialog.submit()
     }
 
@@ -142,12 +142,10 @@ MailPopup {
                 Label { text: qsTr("Para:"); color: LingmoUI.Theme.disabledTextColor }
                 RowLayout {
                     Layout.fillWidth: true
-                    TextField {
+                    RecipientField {
                         id: toField
                         Layout.fillWidth: true
                         placeholderText: qsTr("nome@exemplo.com, outra@exemplo.com")
-                        inputMethodHints: Qt.ImhEmailCharactersOnly | Qt.ImhNoAutoUppercase
-                        selectByMouse: true
                     }
                     ActionButton {
                         visible: !dialog.showCc
@@ -160,12 +158,10 @@ MailPopup {
                 }
 
                 Label { visible: dialog.showCc; text: qsTr("Cc:"); color: LingmoUI.Theme.disabledTextColor }
-                TextField {
+                RecipientField {
                     id: ccField
                     visible: dialog.showCc
                     Layout.fillWidth: true
-                    inputMethodHints: Qt.ImhEmailCharactersOnly | Qt.ImhNoAutoUppercase
-                    selectByMouse: true
                 }
 
                 Label { text: qsTr("Assunto:"); color: LingmoUI.Theme.disabledTextColor }

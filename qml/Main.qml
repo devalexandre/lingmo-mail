@@ -28,7 +28,7 @@ LingmoUI.Window {
 
     width: 1180
     height: 740
-    minimumWidth: 900
+    minimumWidth: 940
     minimumHeight: 560
     visible: true
     title: qsTr("E-mail")
@@ -42,6 +42,12 @@ LingmoUI.Window {
     LayoutMirroring.childrenInherit: true
 
     property bool offeredSetup: false
+    // "mail", "rules", "calendar", "tasks" or "contacts"
+    property string page: "mail"
+    readonly property bool dialogOpen: composer.visible || accountDialog.visible || removeConfirm.visible
+                                       || deleteConfirm.visible || moveDialog.visible || ruleEditor.visible
+                                       || contactEditor.visible
+    readonly property bool mailKeys: page === "mail" && !dialogOpen && Mail.currentIsImap
 
     LingmoUI.WindowBlur {
         view: rootWindow
@@ -50,10 +56,24 @@ LingmoUI.Window {
         enabled: true
     }
 
-    Shortcut { sequence: "Ctrl+N"; enabled: Mail.currentAccountId !== ""; onActivated: composer.compose({}) }
+    function compose(draft) {
+        page = "mail"
+        composer.compose(draft || {})
+    }
+
+    Shortcut { sequence: "Ctrl+N"; enabled: Mail.currentAccountId !== "" && !rootWindow.dialogOpen; onActivated: rootWindow.compose({}) }
     Shortcut { sequence: "F5"; onActivated: Mail.refresh() }
-    Shortcut { sequence: "Ctrl+R"; enabled: !!Mail.message.loaded; onActivated: composer.compose(Mail.replyDraft()) }
-    Shortcut { sequence: "Ctrl+Shift+F"; enabled: !!Mail.message.loaded; onActivated: composer.compose(Mail.forwardDraft()) }
+    Shortcut { sequence: "Ctrl+R"; enabled: !!Mail.message.loaded && !rootWindow.dialogOpen; onActivated: rootWindow.compose(Mail.replyDraft()) }
+    Shortcut { sequence: "Ctrl+Shift+F"; enabled: !!Mail.message.loaded && !rootWindow.dialogOpen; onActivated: rootWindow.compose(Mail.forwardDraft()) }
+    // Message keys; text fields keep their own keys (they take the shortcut override)
+    Shortcut { sequences: [StandardKey.Delete]; enabled: rootWindow.mailKeys; onActivated: messageList.deleteSelected() }
+    Shortcut { sequence: "Ctrl+U"; enabled: rootWindow.mailKeys; onActivated: messageList.toggleRead() }
+    Shortcut { sequence: "S"; enabled: rootWindow.mailKeys; onActivated: messageList.toggleStar() }
+    Shortcut { sequence: "E"; enabled: rootWindow.mailKeys; onActivated: messageList.archiveSelected() }
+    Shortcut { sequence: "Ctrl+A"; enabled: rootWindow.mailKeys; onActivated: messageList.selectAll() }
+    Shortcut { sequence: "J"; enabled: rootWindow.page === "mail" && !rootWindow.dialogOpen; onActivated: messageList.step(1) }
+    Shortcut { sequence: "K"; enabled: rootWindow.page === "mail" && !rootWindow.dialogOpen; onActivated: messageList.step(-1) }
+    Shortcut { sequence: "Escape"; enabled: rootWindow.page === "mail" && !rootWindow.dialogOpen && messageList.selectedIds.length > 1; onActivated: messageList.clearSelection() }
 
     Connections {
         target: Mail
@@ -69,6 +89,13 @@ LingmoUI.Window {
             if (Mail.status.length > 0)
                 statusTimer.restart()
         }
+        function onDeleteNeedsConfirm(ids) {
+            deleteConfirm.ids = ids
+            deleteConfirm.text = ids.length === 1
+                ? qsTr("A mensagem será apagada do servidor para sempre. Isso não pode ser desfeito.")
+                : qsTr("%1 mensagens serão apagadas do servidor para sempre. Isso não pode ser desfeito.").arg(ids.length)
+            deleteConfirm.open()
+        }
     }
 
     Timer {
@@ -81,8 +108,11 @@ LingmoUI.Window {
         spacing: 0
 
         AccountsPane {
+            id: sideBar
             Layout.fillHeight: true
-            onComposeRequested: composer.compose({})
+            page: rootWindow.page
+            onPageRequested: (name) => rootWindow.page = name
+            onComposeRequested: rootWindow.compose({})
             onAddAccountRequested: {
                 accountDialog.reset()
                 accountDialog.open()
@@ -128,99 +158,135 @@ LingmoUI.Window {
                 Layout.fillWidth: true
                 Layout.leftMargin: LingmoUI.Units.largeSpacing * 1.5
                 Layout.rightMargin: LingmoUI.Units.largeSpacing * 1.5
+                visible: text.length > 0 && rootWindow.page !== "calendar" && rootWindow.page !== "tasks"
                 text: Mail.error
                 onClosed: Mail.clearError()
             }
 
-            // ---------- Loading / first-run state
-            Item {
+            StackLayout {
                 Layout.fillWidth: true
                 Layout.fillHeight: true
-                visible: Mail.accounts.length === 0
+                currentIndex: ["mail", "rules", "calendar", "tasks", "contacts"].indexOf(rootWindow.page)
 
-                ColumnLayout {
-                    anchors.centerIn: parent
-                    width: Math.min(parent.width - 80, 420)
-                    spacing: LingmoUI.Units.largeSpacing * 1.5
+                // ---------- E-mail
+                Item {
+                    // Loading / first-run state
+                    Item {
+                        anchors.fill: parent
+                        visible: Mail.accounts.length === 0
 
-                    Image {
-                        Layout.alignment: Qt.AlignHCenter
-                        Layout.preferredWidth: LingmoUI.Units.iconSizes.huge * 1.5
-                        Layout.preferredHeight: LingmoUI.Units.iconSizes.huge * 1.5
-                        source: "qrc:/lingmo-mail.svg"
-                        sourceSize: Qt.size(192, 192)
+                        ColumnLayout {
+                            anchors.centerIn: parent
+                            width: Math.min(parent.width - 80, 420)
+                            spacing: LingmoUI.Units.largeSpacing * 1.5
+
+                            Image {
+                                Layout.alignment: Qt.AlignHCenter
+                                Layout.preferredWidth: LingmoUI.Units.iconSizes.huge * 1.5
+                                Layout.preferredHeight: LingmoUI.Units.iconSizes.huge * 1.5
+                                source: "qrc:/lingmo-mail.svg"
+                                sourceSize: Qt.size(192, 192)
+                            }
+                            Spinner {
+                                Layout.alignment: Qt.AlignHCenter
+                                running: !Mail.accountsLoaded
+                            }
+                            Label {
+                                Layout.fillWidth: true
+                                visible: Mail.accountsLoaded
+                                horizontalAlignment: Text.AlignHCenter
+                                wrapMode: Text.Wrap
+                                text: qsTr("Bem-vindo ao E-mail")
+                                font.pointSize: LingmoUI.Theme.fontSize * 1.5
+                                font.bold: true
+                                color: LingmoUI.Theme.textColor
+                            }
+                            Label {
+                                Layout.fillWidth: true
+                                visible: Mail.accountsLoaded
+                                horizontalAlignment: Text.AlignHCenter
+                                wrapMode: Text.Wrap
+                                text: qsTr("Adicione sua conta do Gmail, Yahoo, iCloud ou de qualquer provedor com IMAP ou POP3. Mensagens são mostradas só como texto, sem conteúdo remoto.")
+                                color: LingmoUI.Theme.disabledTextColor
+                            }
+                            SetupGuide {
+                                Layout.fillWidth: true
+                                visible: Mail.accountsLoaded
+                            }
+                            ActionButton {
+                                Layout.alignment: Qt.AlignHCenter
+                                visible: Mail.accountsLoaded
+                                primary: true
+                                text: qsTr("Adicionar conta")
+                                onClicked: {
+                                    accountDialog.reset()
+                                    accountDialog.open()
+                                }
+                            }
+                        }
                     }
-                    Spinner {
-                        Layout.alignment: Qt.AlignHCenter
-                        running: !Mail.accountsLoaded
-                    }
-                    Label {
-                        Layout.fillWidth: true
-                        visible: Mail.accountsLoaded
-                        horizontalAlignment: Text.AlignHCenter
-                        wrapMode: Text.Wrap
-                        text: qsTr("Bem-vindo ao E-mail")
-                        font.pointSize: LingmoUI.Theme.fontSize * 1.5
-                        font.bold: true
-                        color: LingmoUI.Theme.textColor
-                    }
-                    Label {
-                        Layout.fillWidth: true
-                        visible: Mail.accountsLoaded
-                        horizontalAlignment: Text.AlignHCenter
-                        wrapMode: Text.Wrap
-                        text: qsTr("Adicione sua conta do Gmail, Yahoo, iCloud ou de qualquer provedor com IMAP ou POP3. Mensagens são mostradas só como texto, sem conteúdo remoto.")
-                        color: LingmoUI.Theme.disabledTextColor
-                    }
-                    SetupGuide {
-                        Layout.fillWidth: true
-                        visible: Mail.accountsLoaded
-                    }
-                    ActionButton {
-                        Layout.alignment: Qt.AlignHCenter
-                        visible: Mail.accountsLoaded
-                        primary: true
-                        text: qsTr("Adicionar conta")
-                        onClicked: {
-                            accountDialog.reset()
-                            accountDialog.open()
+
+                    // Message list and reader, as cards
+                    RowLayout {
+                        anchors.fill: parent
+                        anchors.leftMargin: LingmoUI.Units.largeSpacing * 1.5
+                        anchors.rightMargin: LingmoUI.Units.largeSpacing * 1.5
+                        anchors.bottomMargin: LingmoUI.Units.largeSpacing * 1.5
+                        spacing: LingmoUI.Units.largeSpacing
+                        visible: Mail.accounts.length > 0
+
+                        LingmoUI.RoundedRect {
+                            Layout.preferredWidth: Math.max(320, Math.min(400, rootWindow.width * 0.32))
+                            Layout.fillHeight: true
+                            radius: LingmoUI.Theme.mediumRadius
+                            color: LingmoUI.Theme.secondBackgroundColor
+
+                            MessageList {
+                                id: messageList
+                                anchors.fill: parent
+                                onMoveRequested: (ids, anchor) => moveDialog.choose(ids)
+                                onRulesRequested: rootWindow.page = "rules"
+                            }
+                        }
+
+                        LingmoUI.RoundedRect {
+                            Layout.fillWidth: true
+                            Layout.fillHeight: true
+                            radius: LingmoUI.Theme.mediumRadius
+                            color: LingmoUI.Theme.secondBackgroundColor
+
+                            MessageReader {
+                                anchors.fill: parent
+                                onReplyRequested: rootWindow.compose(Mail.replyDraft())
+                                onForwardRequested: rootWindow.compose(Mail.forwardDraft())
+                                onRuleRequested: (message) => ruleEditor.fromMessage(message)
+                                onMoveRequested: (ids, anchor) => moveDialog.choose(ids)
+                            }
                         }
                     }
                 }
-            }
 
-            // ---------- Message list and reader, as cards
-            RowLayout {
-                Layout.fillWidth: true
-                Layout.fillHeight: true
-                Layout.leftMargin: LingmoUI.Units.largeSpacing * 1.5
-                Layout.rightMargin: LingmoUI.Units.largeSpacing * 1.5
-                Layout.bottomMargin: LingmoUI.Units.largeSpacing * 1.5
-                spacing: LingmoUI.Units.largeSpacing
-                visible: Mail.accounts.length > 0
-
-                LingmoUI.RoundedRect {
-                    Layout.preferredWidth: Math.max(300, Math.min(380, rootWindow.width * 0.3))
-                    Layout.fillHeight: true
-                    radius: LingmoUI.Theme.mediumRadius
-                    color: LingmoUI.Theme.secondBackgroundColor
-
-                    MessageList {
-                        anchors.fill: parent
-                    }
+                // ---------- Regras
+                RulesPage {
+                    onEditRequested: (rule) => ruleEditor.edit(rule)
                 }
 
-                LingmoUI.RoundedRect {
-                    Layout.fillWidth: true
-                    Layout.fillHeight: true
-                    radius: LingmoUI.Theme.mediumRadius
-                    color: LingmoUI.Theme.secondBackgroundColor
+                // ---------- Calendário and Tarefas: the calendar side's pages, when installed
+                SectionLoader {
+                    source: "qrc:/qml/CalendarPage.qml"
+                    title: qsTr("Calendário")
+                    wanted: rootWindow.page === "calendar"
+                }
+                SectionLoader {
+                    source: "qrc:/qml/TasksPage.qml"
+                    title: qsTr("Tarefas")
+                    wanted: rootWindow.page === "tasks"
+                }
 
-                    MessageReader {
-                        anchors.fill: parent
-                        onReplyRequested: composer.compose(Mail.replyDraft())
-                        onForwardRequested: composer.compose(Mail.forwardDraft())
-                    }
+                // ---------- Contatos
+                ContactsPage {
+                    onWriteRequested: (recipient) => rootWindow.compose({ to: recipient })
+                    onEditRequested: (contact) => contactEditor.edit(contact)
                 }
             }
         }
@@ -234,6 +300,14 @@ LingmoUI.Window {
         id: composer
     }
 
+    RuleEditor {
+        id: ruleEditor
+    }
+
+    ContactEditor {
+        id: contactEditor
+    }
+
     ConfirmDialog {
         id: removeConfirm
         property string accountId: ""
@@ -241,5 +315,63 @@ LingmoUI.Window {
         acceptText: qsTr("Remover")
         destructive: true
         onAccepted: Mail.removeAccount(accountId)
+    }
+
+    ConfirmDialog {
+        id: deleteConfirm
+        property var ids: []
+        title: qsTr("Apagar definitivamente?")
+        acceptText: qsTr("Apagar")
+        destructive: true
+        onAccepted: {
+            Mail.deleteMessages(ids, true)
+            messageList.clearSelection()
+        }
+    }
+
+    // "Mover para…": the folders of the open account
+    MailPopup {
+        id: moveDialog
+        property var ids: []
+        title: ids.length > 1 ? qsTr("Mover %1 mensagens para").arg(ids.length) : qsTr("Mover para")
+        width: Math.min(420, parent ? parent.width - 80 : 420)
+        closePolicy: Popup.CloseOnEscape | Popup.CloseOnPressOutside
+
+        function choose(list) {
+            ids = list
+            targets.model = Mail.moveTargets()
+            open()
+        }
+
+        ListView {
+            id: targets
+            width: parent.width
+            implicitHeight: Math.min(contentHeight, 360)
+            height: implicitHeight
+            clip: true
+            spacing: 2
+            boundsBehavior: Flickable.StopAtBounds
+            ScrollBar.vertical: ScrollBar {}
+            delegate: SideBarItem {
+                required property var modelData
+                width: ListView.view.width
+                indent: Math.min(modelData.depth || 0, 4) * LingmoUI.Units.largeSpacing
+                title: modelData.title
+                iconName: Mail.folderIcon(modelData.role || "")
+                onClicked: {
+                    moveDialog.close()
+                    Mail.moveMessages(moveDialog.ids, modelData.path)
+                    messageList.clearSelection()
+                }
+            }
+        }
+
+        buttons: [
+            Item { Layout.fillWidth: true },
+            ActionButton {
+                text: qsTr("Cancelar")
+                onClicked: moveDialog.close()
+            }
+        ]
     }
 }

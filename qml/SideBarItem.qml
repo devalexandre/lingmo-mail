@@ -29,6 +29,10 @@ Item {
 
     property string title: ""
     property string tileText: ""
+    // A theme icon instead of the coloured tile (folders)
+    property string iconName: ""
+    property int indent: 0
+    property bool strongTrailing: false
     property color tileColor: LingmoUI.Theme.highlightColor
     property string trailing: ""
     property bool isCurrent: false
@@ -60,13 +64,25 @@ Item {
 
     RowLayout {
         anchors.fill: parent
-        anchors.leftMargin: LingmoUI.Units.largeSpacing
+        anchors.leftMargin: LingmoUI.Units.largeSpacing + control.indent
         anchors.rightMargin: LingmoUI.Units.smallSpacing
         spacing: LingmoUI.Units.smallSpacing * 1.5
 
         // macOS-style tile, as in Settings
+        LingmoUI.IconItem {
+            visible: control.iconName.length > 0 && control.tileText.length === 0
+            Layout.preferredWidth: LingmoUI.Units.iconSizes.small
+            Layout.preferredHeight: LingmoUI.Units.iconSizes.small
+            Layout.leftMargin: 5
+            Layout.rightMargin: 5
+            Layout.alignment: Qt.AlignVCenter
+            source: control.iconName
+            smooth: true
+        }
+
         Rectangle {
             id: tile
+            visible: control.tileText.length > 0
             Layout.preferredWidth: 26
             Layout.preferredHeight: 26
             Layout.alignment: Qt.AlignVCenter
@@ -100,7 +116,9 @@ Item {
         Label {
             visible: control.trailing.length > 0
             text: control.trailing
-            color: control.isCurrent ? LingmoUI.Theme.highlightedTextColor : LingmoUI.Theme.disabledTextColor
+            font.bold: control.strongTrailing
+            color: control.isCurrent ? LingmoUI.Theme.highlightedTextColor
+                 : control.strongTrailing ? LingmoUI.Theme.highlightColor : LingmoUI.Theme.disabledTextColor
         }
 
         RowLayout {

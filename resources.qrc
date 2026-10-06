@@ -13,6 +13,13 @@
         <file>qml/ConfirmDialog.qml</file>
         <file>qml/SideBarItem.qml</file>
         <file>qml/SetupGuide.qml</file>
+        <file>qml/IconButton.qml</file>
+        <file>qml/RecipientField.qml</file>
+        <file>qml/RulesPage.qml</file>
+        <file>qml/RuleEditor.qml</file>
+        <file>qml/ContactsPage.qml</file>
+        <file>qml/ContactEditor.qml</file>
+        <file>qml/SectionLoader.qml</file>
         <file alias="lingmo-mail.svg">data/lingmo-mail.svg</file>
     </qresource>
 </RCC>

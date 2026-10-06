@@ -23,22 +23,36 @@ import QtQuick.Layouts
 import LingmoUI.CompatibleModule 3.0 as LingmoUI
 import Lingmo.Mail
 
-// Left pane, in the style of Lingmo Settings' sidebar: compose, folders and accounts
+// Left pane, in the style of Lingmo Settings' sidebar: E-mail (accounts and their
+// folders, rules), then the other sections of the app
 Item {
     id: control
 
+    // "mail", "rules", "calendar", "tasks" or "contacts"
+    property string page: "mail"
+    signal pageRequested(string page)
     signal composeRequested()
     signal addAccountRequested()
     signal removeRequested(var account)
 
-    implicitWidth: 230
+    implicitWidth: 240
 
     readonly property var tileColors: [LingmoUI.Theme.blueColor, LingmoUI.Theme.purpleColor, LingmoUI.Theme.orangeColor,
                                        LingmoUI.Theme.greenColor, LingmoUI.Theme.pinkColor, LingmoUI.Theme.redColor]
+    // Accounts whose folders are folded away (the open one is always shown)
+    property var collapsed: ({})
 
     function initials(account) {
         const source = (account.name || account.email || "?").trim()
         return source.length > 0 ? source[0].toUpperCase() : "?"
+    }
+
+    function toggle(accountId, open) {
+        const next = Object.assign({}, collapsed)
+        // true = folded, false = unfolded
+        next[accountId] = open ? next[accountId] !== true ? true : false
+                               : next[accountId] === false ? true : false
+        collapsed = next
     }
 
     Rectangle {
@@ -82,7 +96,7 @@ Item {
             Layout.fillWidth: true
             Layout.fillHeight: true
             clip: true
-            contentHeight: column.implicitHeight
+            contentHeight: column.implicitHeight + LingmoUI.Units.largeSpacing
             boundsBehavior: Flickable.StopAtBounds
             ScrollBar.vertical: ScrollBar {}
 
@@ -97,90 +111,110 @@ Item {
                 Label {
                     Layout.topMargin: LingmoUI.Units.largeSpacing
                     Layout.leftMargin: LingmoUI.Units.smallSpacing
-                    visible: Mail.currentAccountId !== ""
-                    text: qsTr("Pastas")
-                    color: LingmoUI.Theme.disabledTextColor
-                }
-
-                // Only the inbox for now: the worker reads INBOX
-                SideBarItem {
-                    Layout.fillWidth: true
-                    visible: Mail.currentAccountId !== ""
-                    title: qsTr("Caixa de entrada")
-                    tileText: "✉"
-                    tileColor: LingmoUI.Theme.blueColor
-                    trailing: Mail.inboxLoaded && Mail.messages.length > 0 ? String(Mail.messages.length) : ""
-                    isCurrent: true
-                    onClicked: Mail.closeMessage()
-                }
-
-                Label {
-                    Layout.topMargin: LingmoUI.Units.largeSpacing
-                    Layout.leftMargin: LingmoUI.Units.smallSpacing
-                    text: qsTr("Contas")
+                    text: qsTr("E-mail")
                     color: LingmoUI.Theme.disabledTextColor
                 }
 
                 Repeater {
                     model: Mail.accounts
 
-                    delegate: SideBarItem {
-                        id: row
+                    delegate: ColumnLayout {
+                        id: accountBlock
                         required property var modelData
                         required property int index
+                        readonly property bool isOpen: modelData.id === Mail.currentAccountId
+                        readonly property var folders: Mail.folderCache[modelData.id] || []
+                        // The open account shows its folders unless folded; the others only when unfolded
+                        readonly property bool expanded: isOpen ? control.collapsed[modelData.id] !== true
+                                                                : control.collapsed[modelData.id] === false
+                        readonly property int inboxUnread: {
+                            const inbox = folders.find(f => f.role === "inbox")
+                            return inbox ? inbox.unread : -1
+                        }
 
                         Layout.fillWidth: true
-                        title: modelData.name || modelData.email
-                        tileText: control.initials(modelData)
-                        tileColor: control.tileColors[index % control.tileColors.length]
-                        // The open folder is highlighted; the current account is marked by its weight
-                        isCurrent: false
-                        emphasized: modelData.id === Mail.currentAccountId
-                        Accessible.name: modelData.email
-                        onClicked: Mail.currentAccountId = modelData.id
+                        spacing: 2
 
-                        ToolTip.visible: row.hovered && !!modelData.name
-                        ToolTip.text: modelData.email
-                        ToolTip.delay: 600
-
-                        // Options button, shown on hover
-                        Rectangle {
-                            id: moreButton
-                            Layout.preferredWidth: 24
-                            Layout.preferredHeight: 24
-                            radius: width / 2
-                            visible: row.hovered || moreArea.containsMouse || accountMenu.visible
-                            color: moreArea.containsMouse ? Qt.rgba(LingmoUI.Theme.textColor.r, LingmoUI.Theme.textColor.g,
-                                                                    LingmoUI.Theme.textColor.b, 0.12)
-                                                          : "transparent"
-                            Behavior on color { ColorAnimation { duration: 120 } }
-                            Accessible.role: Accessible.Button
-                            Accessible.name: qsTr("Opções da conta")
-
-                            Label {
-                                anchors.centerIn: parent
-                                text: "\u22EF"
-                                color: LingmoUI.Theme.textColor
+                        SideBarItem {
+                            id: row
+                            Layout.fillWidth: true
+                            title: accountBlock.modelData.name || accountBlock.modelData.email
+                            tileText: control.initials(accountBlock.modelData)
+                            tileColor: control.tileColors[accountBlock.index % control.tileColors.length]
+                            emphasized: accountBlock.isOpen
+                            trailing: !accountBlock.expanded && accountBlock.inboxUnread > 0 ? String(accountBlock.inboxUnread) : ""
+                            strongTrailing: true
+                            Accessible.name: accountBlock.modelData.email
+                            onClicked: {
+                                if (accountBlock.isOpen && control.page === "mail") {
+                                    control.toggle(accountBlock.modelData.id, true)
+                                    return
+                                }
+                                const next = Object.assign({}, control.collapsed)
+                                next[accountBlock.modelData.id] = false
+                                control.collapsed = next
+                                Mail.openFolder(accountBlock.modelData.id, "INBOX")
+                                control.pageRequested("mail")
                             }
-                            MouseArea {
-                                id: moreArea
-                                anchors.fill: parent
-                                hoverEnabled: true
+
+                            ToolTip.visible: row.hovered && !!accountBlock.modelData.name
+                            ToolTip.text: accountBlock.modelData.email
+                            ToolTip.delay: 600
+
+                            // Options button, shown on hover
+                            IconButton {
+                                id: moreButton
+                                Layout.preferredWidth: 24
+                                Layout.preferredHeight: 24
+                                visible: row.hovered || hovered || accountMenu.visible
+                                iconName: "view-more-symbolic"
+                                tipText: qsTr("Opções da conta")
                                 onClicked: accountMenu.popup(moreButton, 0, moreButton.height)
-                            }
 
-                            Menu {
-                                id: accountMenu
-                                MenuItem {
-                                    text: qsTr("Usar esta conta")
-                                    enabled: row.modelData.id !== Mail.currentAccountId
-                                    onTriggered: Mail.currentAccountId = row.modelData.id
-                                }
-                                MenuItem {
-                                    text: qsTr("Remover conta…")
-                                    onTriggered: control.removeRequested(row.modelData)
+                                Menu {
+                                    id: accountMenu
+                                    MenuItem {
+                                        text: accountBlock.expanded ? qsTr("Recolher pastas") : qsTr("Mostrar pastas")
+                                        onTriggered: control.toggle(accountBlock.modelData.id, accountBlock.isOpen)
+                                    }
+                                    MenuItem {
+                                        text: qsTr("Remover conta…")
+                                        onTriggered: control.removeRequested(accountBlock.modelData)
+                                    }
                                 }
                             }
+                        }
+
+                        Repeater {
+                            model: accountBlock.expanded ? accountBlock.folders : []
+
+                            delegate: SideBarItem {
+                                required property var modelData
+                                Layout.fillWidth: true
+                                indent: LingmoUI.Units.largeSpacing + Math.min(modelData.depth || 0, 4) * LingmoUI.Units.largeSpacing
+                                title: Mail.folderTitle(modelData)
+                                iconName: Mail.folderIcon(modelData.role || "")
+                                trailing: modelData.unread > 0 ? String(modelData.unread) : ""
+                                strongTrailing: modelData.role === "inbox"
+                                isCurrent: control.page === "mail" && accountBlock.isOpen
+                                           && modelData.path === Mail.currentFolder
+                                Accessible.name: title
+                                onClicked: {
+                                    Mail.openFolder(accountBlock.modelData.id, modelData.path)
+                                    control.pageRequested("mail")
+                                }
+                            }
+                        }
+
+                        // Folders not known yet: the inbox, until the first listing arrives
+                        SideBarItem {
+                            Layout.fillWidth: true
+                            visible: accountBlock.expanded && accountBlock.folders.length === 0 && accountBlock.isOpen
+                            indent: LingmoUI.Units.largeSpacing
+                            title: qsTr("Caixa de entrada")
+                            iconName: "mail-folder-inbox"
+                            isCurrent: control.page === "mail"
+                            onClicked: control.pageRequested("mail")
                         }
                     }
                 }
@@ -193,12 +227,69 @@ Item {
                     text: qsTr("Nenhuma conta ainda")
                     color: LingmoUI.Theme.disabledTextColor
                 }
+
+                SideBarItem {
+                    Layout.fillWidth: true
+                    visible: Mail.accounts.length > 0
+                    title: qsTr("Regras")
+                    tileText: "☰"
+                    tileColor: LingmoUI.Theme.orangeColor
+                    isCurrent: control.page === "rules"
+                    onClicked: control.pageRequested("rules")
+                }
+
+            }
+        }
+
+        // Other sections: always in view, below the mail folders
+        Rectangle {
+            Layout.fillWidth: true
+            Layout.leftMargin: LingmoUI.Units.largeSpacing
+            Layout.rightMargin: LingmoUI.Units.largeSpacing
+            implicitHeight: 1
+            color: LingmoUI.Theme.textColor
+            opacity: 0.08
+        }
+
+        ColumnLayout {
+            Layout.fillWidth: true
+            Layout.leftMargin: LingmoUI.Units.largeSpacing
+            Layout.rightMargin: LingmoUI.Units.largeSpacing
+            Layout.topMargin: LingmoUI.Units.smallSpacing
+            spacing: LingmoUI.Units.smallSpacing
+
+            SideBarItem {
+                Layout.fillWidth: true
+                title: qsTr("Calendário")
+                tileText: "▦"
+                tileColor: LingmoUI.Theme.redColor
+                isCurrent: control.page === "calendar"
+                onClicked: control.pageRequested("calendar")
+            }
+            SideBarItem {
+                Layout.fillWidth: true
+                title: qsTr("Tarefas")
+                tileText: "✓"
+                tileColor: LingmoUI.Theme.greenColor
+                isCurrent: control.page === "tasks"
+                onClicked: control.pageRequested("tasks")
+            }
+            SideBarItem {
+                Layout.fillWidth: true
+                title: qsTr("Contatos")
+                tileText: "@"
+                tileColor: LingmoUI.Theme.purpleColor
+                isCurrent: control.page === "contacts"
+                onClicked: control.pageRequested("contacts")
             }
         }
 
         ActionButton {
             Layout.fillWidth: true
-            Layout.margins: LingmoUI.Units.largeSpacing
+            Layout.leftMargin: LingmoUI.Units.largeSpacing
+            Layout.rightMargin: LingmoUI.Units.largeSpacing
+            Layout.topMargin: LingmoUI.Units.smallSpacing * 1.5
+            Layout.bottomMargin: LingmoUI.Units.largeSpacing
             text: qsTr("Adicionar conta")
             onClicked: control.addAccountRequested()
         }
