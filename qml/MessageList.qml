@@ -290,10 +290,7 @@ Item {
                 fillWidth: true
                 model: [qsTr("Todas"), qsTr("Não lidas"), qsTr("Com estrela"), qsTr("Com anexo")]
                 currentIndex: keys.indexOf(Mail.filter)
-                onActivated: (index) => {
-                    Mail.setFilter(keys[index])
-                    currentIndex = Qt.binding(() => keys.indexOf(Mail.filter))
-                }
+                onActivated: (index) => Mail.setFilter(keys[index])
             }
         }
 

@@ -308,10 +308,7 @@ Item {
                     readonly property var keys: ["day", "week", "month", "agenda"]
                     model: [qsTr("Dia"), qsTr("Semana"), qsTr("Mês"), qsTr("Agenda")]
                     currentIndex: keys.indexOf(page.view)
-                    onActivated: (index) => {
-                        page.view = keys[index]
-                        currentIndex = Qt.binding(() => keys.indexOf(page.view))
-                    }
+                    onActivated: (index) => page.view = keys[index]
                 }
             }
 

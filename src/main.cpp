@@ -39,6 +39,7 @@ static void applyIconTheme()
     const bool dark = theme.value(QStringLiteral("DarkMode"), false).toBool();
     const QStringList candidates = {
         theme.value(dark ? QStringLiteral("DarkIconTheme") : QStringLiteral("IconTheme")).toString(),
+        dark ? QStringLiteral("Lingmo-dark") : QStringLiteral("Lingmo"),
         dark ? QStringLiteral("Crule-dark") : QStringLiteral("Crule"),
         QStringLiteral("breeze"),
     };
