@@ -174,13 +174,14 @@ LingmoUI.RoundedRect {
                           : card.method === "CANCEL" ? qsTr("Cancelado: %1").arg(card.info.title)
                           : card.info.title
                     font.bold: true
-                    font.pointSize: LingmoUI.Theme.fontSize * 1.1
+                    font.pointSize: LingmoUI.Units.fontBody
                     font.strikeout: card.method === "CANCEL"
                     color: LingmoUI.Theme.textColor
                     wrapMode: Text.Wrap
                     textFormat: Text.PlainText
                 }
                 Label {
+                    font.pointSize: LingmoUI.Units.fontBody
                     Layout.fillWidth: true
                     visible: !!card.info
                     text: card.when() + (card.info && card.info.recurring && card.info.ruleText ? " · " + card.info.ruleText : "")
@@ -188,14 +189,16 @@ LingmoUI.RoundedRect {
                     wrapMode: Text.Wrap
                 }
                 Label {
+                    font.pointSize: LingmoUI.Units.fontCaption
                     Layout.fillWidth: true
                     visible: !!(card.info && card.info.location)
                     text: card.info ? qsTr("Local: %1").arg(card.info.location) : ""
-                    color: LingmoUI.Theme.disabledTextColor
+                    color: LingmoUI.Theme.secondaryTextColor
                     wrapMode: Text.Wrap
                     textFormat: Text.PlainText
                 }
                 Label {
+                    font.pointSize: LingmoUI.Units.fontCaption
                     Layout.fillWidth: true
                     visible: !!(card.info && card.info.organizer)
                     text: card.info && card.info.organizer
@@ -203,21 +206,21 @@ LingmoUI.RoundedRect {
                                                          ? card.info.organizer.name + " <" + card.info.organizer.email + ">"
                                                          : card.info.organizer.email)
                           : ""
-                    color: LingmoUI.Theme.disabledTextColor
+                    color: LingmoUI.Theme.secondaryTextColor
                     elide: Text.ElideRight
                     textFormat: Text.PlainText
                 }
                 Label {
+                    font.pointSize: LingmoUI.Units.fontCaption
                     Layout.fillWidth: true
                     visible: !!(card.info && card.info.attendees && card.info.attendees.length)
                     text: card.info && card.info.attendees ? qsTr("%n convidado(s)", "", card.info.attendees.length) : ""
-                    color: LingmoUI.Theme.disabledTextColor
+                    color: LingmoUI.Theme.secondaryTextColor
                 }
             }
 
-            Spinner {
-                Layout.preferredWidth: 20
-                Layout.preferredHeight: 20
+            LingmoUI.Spinner {
+                size: 20
                 Layout.alignment: Qt.AlignTop
                 running: card.working || (!card.info && !card.errorText)
             }
@@ -233,6 +236,7 @@ LingmoUI.RoundedRect {
                            LingmoUI.Theme.darkMode ? 0.22 : 0.12)
             Label {
                 id: conflictText
+                font.pointSize: LingmoUI.Units.fontBody
                 anchors.fill: parent
                 anchors.margins: LingmoUI.Units.smallSpacing
                 anchors.leftMargin: LingmoUI.Units.largeSpacing
@@ -249,10 +253,11 @@ LingmoUI.RoundedRect {
         }
 
         Label {
+            font.pointSize: LingmoUI.Units.fontCaption
             Layout.fillWidth: true
             visible: text.length > 0
             wrapMode: Text.Wrap
-            color: LingmoUI.Theme.disabledTextColor
+            color: LingmoUI.Theme.secondaryTextColor
             text: {
                 if (!card.info)
                     return ""
@@ -283,14 +288,15 @@ LingmoUI.RoundedRect {
             }
         }
 
-        Banner {
+        LingmoUI.Banner {
+            type: LingmoUI.Banner.Error
             Layout.fillWidth: true
             text: card.errorText
             onClosed: card.errorText = ""
         }
-        Banner {
+        LingmoUI.Banner {
             Layout.fillWidth: true
-            error: false
+            type: LingmoUI.Banner.Success
             text: card.doneText
             onClosed: card.doneText = ""
         }
@@ -302,20 +308,20 @@ LingmoUI.RoundedRect {
             visible: !!card.info && !card.info.outdated
 
             // REQUEST: answer
-            ActionButton {
+            LingmoUI.ActionButton {
                 visible: card.method === "REQUEST"
                 enabled: !card.working
                 primary: card.answer !== "ACCEPTED"
                 text: card.answer === "ACCEPTED" ? qsTr("Aceito") : qsTr("Aceitar")
                 onClicked: card.respond("ACCEPTED")
             }
-            ActionButton {
+            LingmoUI.ActionButton {
                 visible: card.method === "REQUEST"
                 enabled: !card.working
                 text: qsTr("Talvez")
                 onClicked: card.respond("TENTATIVE")
             }
-            ActionButton {
+            LingmoUI.ActionButton {
                 visible: card.method === "REQUEST"
                 enabled: !card.working
                 text: qsTr("Recusar")
@@ -323,7 +329,7 @@ LingmoUI.RoundedRect {
             }
 
             // PUBLISH: just add
-            ActionButton {
+            LingmoUI.ActionButton {
                 visible: card.method === "PUBLISH" || card.method === "ADD"
                 enabled: !card.working
                 primary: true
@@ -335,7 +341,7 @@ LingmoUI.RoundedRect {
             }
 
             // CANCEL: offer to remove
-            ActionButton {
+            LingmoUI.ActionButton {
                 visible: card.method === "CANCEL" && !!(card.info && card.info.existing)
                 enabled: !card.working
                 destructive: true
@@ -347,7 +353,7 @@ LingmoUI.RoundedRect {
             }
 
             // REPLY (we organized it): record the answer
-            ActionButton {
+            LingmoUI.ActionButton {
                 visible: card.method === "REPLY" && !!(card.info && card.info.existing)
                 enabled: !card.working
                 text: qsTr("Atualizar no calendário")

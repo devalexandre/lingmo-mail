@@ -50,29 +50,14 @@ Item {
     readonly property bool loaded: !!message.loaded
 
     // ---------- Nothing open
-    ColumnLayout {
+    LingmoUI.EmptyState {
         anchors.centerIn: parent
         width: Math.min(parent.width - 40, 360)
         visible: !control.hasMessage
-        spacing: LingmoUI.Units.largeSpacing
-
-        Image {
-            Layout.alignment: Qt.AlignHCenter
-            Layout.preferredWidth: 72
-            Layout.preferredHeight: 72
-            source: "qrc:/lingmo-mail.svg"
-            sourceSize: Qt.size(144, 144)
-            opacity: 0.45
-        }
-        Label {
-            Layout.fillWidth: true
-            horizontalAlignment: Text.AlignHCenter
-            wrapMode: Text.Wrap
-            text: Mail.currentAccountId !== "" ? qsTr("Selecione uma mensagem para ler")
-                                               : qsTr("Nenhuma conta selecionada")
-            color: LingmoUI.Theme.disabledTextColor
-            font.pointSize: LingmoUI.Theme.fontSize * 1.1
-        }
+        iconName: "qrc:/lingmo-mail.svg"
+        iconSize: 72
+        title: Mail.currentAccountId !== "" ? qsTr("Selecione uma mensagem para ler")
+                                            : qsTr("Nenhuma conta selecionada")
     }
 
     ColumnLayout {
@@ -89,7 +74,7 @@ Item {
             Label {
                 Layout.fillWidth: true
                 text: control.message.subject || ""
-                font.pointSize: LingmoUI.Theme.fontSize * 1.45
+                font.pointSize: LingmoUI.Units.fontHeading
                 font.bold: true
                 color: LingmoUI.Theme.textColor
                 wrapMode: Text.Wrap
@@ -98,13 +83,13 @@ Item {
                 elide: Text.ElideRight
             }
 
-            ActionButton {
+            LingmoUI.ActionButton {
                 Layout.alignment: Qt.AlignTop
                 text: qsTr("Responder")
                 enabled: control.loaded
                 onClicked: control.replyRequested()
             }
-            ActionButton {
+            LingmoUI.ActionButton {
                 Layout.alignment: Qt.AlignTop
                 text: qsTr("Encaminhar")
                 enabled: control.loaded
@@ -118,33 +103,33 @@ Item {
             Layout.topMargin: -LingmoUI.Units.smallSpacing
             spacing: 2
 
-            IconButton {
+            LingmoUI.IconButton {
                 visible: control.imap
                 iconName: control.message.starred ? "rating" : "rating-unrated"
                 tipText: control.message.starred ? qsTr("Remover estrela (S)") : qsTr("Marcar com estrela (S)")
                 onClicked: Mail.setStarred([Mail.currentMessageId], !control.message.starred)
             }
-            IconButton {
+            LingmoUI.IconButton {
                 visible: control.imap
                 iconName: "mail-mark-unread"
                 tipText: qsTr("Marcar como não lida (Ctrl+U)")
                 enabled: !control.message.unread
                 onClicked: Mail.markRead([Mail.currentMessageId], false)
             }
-            IconButton {
+            LingmoUI.IconButton {
                 visible: control.imap
                 iconName: "mail-archive"
                 tipText: qsTr("Arquivar (E)")
                 onClicked: Mail.archive([Mail.currentMessageId])
             }
-            IconButton {
+            LingmoUI.IconButton {
                 id: moveButton
                 visible: control.imap
                 iconName: "folder"
                 tipText: qsTr("Mover para…")
                 onClicked: control.moveRequested([Mail.currentMessageId], moveButton)
             }
-            IconButton {
+            LingmoUI.IconButton {
                 visible: control.imap
                 iconName: "edit-delete"
                 tipText: Mail.currentFolderRole === "trash" ? qsTr("Apagar definitivamente (Del)")
@@ -154,13 +139,13 @@ Item {
 
             Item { Layout.fillWidth: true }
 
-            ActionButton {
+            LingmoUI.ActionButton {
                 visible: control.calendarAvailable
                 text: qsTr("Criar tarefa")
                 enabled: control.loaded
                 onClicked: control.createTask()
             }
-            IconButton {
+            LingmoUI.IconButton {
                 id: moreButton
                 iconName: "view-more-symbolic"
                 tipText: qsTr("Mais ações")
@@ -196,16 +181,18 @@ Item {
             columnSpacing: LingmoUI.Units.largeSpacing
             rowSpacing: 2
 
-            Label { text: qsTr("De:"); color: LingmoUI.Theme.disabledTextColor }
+            Label { text: qsTr("De:"); color: LingmoUI.Theme.secondaryTextColor; font.pointSize: LingmoUI.Units.fontBody }
             Label {
+                font.pointSize: LingmoUI.Units.fontBody
                 Layout.fillWidth: true
                 text: control.message.sender || ""
                 color: LingmoUI.Theme.textColor
                 elide: Text.ElideRight
                 textFormat: Text.PlainText
             }
-            Label { text: qsTr("Para:"); color: LingmoUI.Theme.disabledTextColor }
+            Label { text: qsTr("Para:"); color: LingmoUI.Theme.secondaryTextColor; font.pointSize: LingmoUI.Units.fontBody }
             Label {
+                font.pointSize: LingmoUI.Units.fontBody
                 Layout.fillWidth: true
                 text: control.message.to || ""
                 color: LingmoUI.Theme.textColor
@@ -215,11 +202,13 @@ Item {
                 textFormat: Text.PlainText
             }
             Label {
+                font.pointSize: LingmoUI.Units.fontCaption
                 visible: !!control.message.cc
                 text: qsTr("Cc:")
-                color: LingmoUI.Theme.disabledTextColor
+                color: LingmoUI.Theme.secondaryTextColor
             }
             Label {
+                font.pointSize: LingmoUI.Units.fontBody
                 visible: !!control.message.cc
                 Layout.fillWidth: true
                 text: control.message.cc || ""
@@ -229,8 +218,9 @@ Item {
                 elide: Text.ElideRight
                 textFormat: Text.PlainText
             }
-            Label { text: qsTr("Data:"); color: LingmoUI.Theme.disabledTextColor }
+            Label { text: qsTr("Data:"); color: LingmoUI.Theme.secondaryTextColor; font.pointSize: LingmoUI.Units.fontBody }
             Label {
+                font.pointSize: LingmoUI.Units.fontBody
                 Layout.fillWidth: true
                 text: control.message.fullDate || ""
                 color: LingmoUI.Theme.textColor
@@ -266,11 +256,12 @@ Item {
                     color: LingmoUI.Theme.alternateBackgroundColor
                     Label {
                         id: inviteNote
+                        font.pointSize: LingmoUI.Units.fontCaption
                         anchors.fill: parent
                         anchors.margins: LingmoUI.Units.largeSpacing * 0.75
                         verticalAlignment: Text.AlignVCenter
                         text: qsTr("Esta mensagem contém um convite de calendário.")
-                        color: LingmoUI.Theme.disabledTextColor
+                        color: LingmoUI.Theme.secondaryTextColor
                         wrapMode: Text.Wrap
                     }
                 }
@@ -296,6 +287,7 @@ Item {
                         color: LingmoUI.Theme.alternateBackgroundColor
                         Label {
                             id: chip
+                            font.pointSize: LingmoUI.Units.fontBody
                             anchors.centerIn: parent
                             width: Math.min(implicitWidth, 260 - LingmoUI.Units.largeSpacing * 2)
                             text: modelData
@@ -309,8 +301,8 @@ Item {
             Label {
                 Layout.fillWidth: true
                 text: qsTr("Os anexos não são abertos aqui por segurança. Use o site do seu provedor para baixá-los.")
-                color: LingmoUI.Theme.disabledTextColor
-                font.pointSize: LingmoUI.Theme.fontSize * 0.85
+                color: LingmoUI.Theme.secondaryTextColor
+                font.pointSize: LingmoUI.Units.fontCaption
                 wrapMode: Text.Wrap
             }
         }
@@ -318,8 +310,7 @@ Item {
         Rectangle {
             Layout.fillWidth: true
             implicitHeight: 1
-            color: LingmoUI.Theme.textColor
-            opacity: 0.1
+            color: LingmoUI.Theme.dividerColor
         }
 
         // ---------- Body
@@ -340,29 +331,21 @@ Item {
                     wrapMode: TextEdit.Wrap
                     color: LingmoUI.Theme.textColor
                     background: null
-                    font.pointSize: LingmoUI.Theme.fontSize
+                    font.pointSize: LingmoUI.Units.fontBody
                 }
             }
 
-            ColumnLayout {
+            LingmoUI.EmptyState {
                 anchors.centerIn: parent
+                width: Math.min(parent.width - 40, 360)
                 visible: !control.loaded
-                spacing: LingmoUI.Units.largeSpacing
-                Spinner {
-                    Layout.alignment: Qt.AlignHCenter
-                    running: Mail.loadingMessage
-                }
-                Label {
-                    Layout.alignment: Qt.AlignHCenter
-                    text: Mail.loadingMessage ? qsTr("Abrindo mensagem…") : qsTr("Não foi possível abrir a mensagem")
-                    color: LingmoUI.Theme.disabledTextColor
-                }
-                ActionButton {
-                    Layout.alignment: Qt.AlignHCenter
-                    visible: !Mail.loadingMessage
-                    text: qsTr("Tentar novamente")
-                    onClicked: Mail.openMessage(Mail.currentMessageId)
-                }
+                busy: Mail.loadingMessage
+                iconName: "dialog-warning"
+                iconSize: LingmoUI.Units.iconSizes.large
+                title: Mail.loadingMessage ? qsTr("Abrindo mensagem…") : qsTr("Não foi possível abrir a mensagem")
+                actionText: !Mail.loadingMessage ? qsTr("Tentar novamente") : ""
+                actionPrimary: false
+                onActionTriggered: Mail.openMessage(Mail.currentMessageId)
             }
         }
     }

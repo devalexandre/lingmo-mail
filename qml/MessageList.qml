@@ -180,7 +180,7 @@ Item {
                 Label {
                     Layout.fillWidth: true
                     text: Mail.folderTitle(Mail.currentFolderInfo)
-                    font.pointSize: LingmoUI.Theme.fontSize * 1.3
+                    font.pointSize: LingmoUI.Units.fontSubheading
                     font.bold: true
                     color: LingmoUI.Theme.textColor
                     elide: Text.ElideRight
@@ -195,26 +195,25 @@ Item {
                         return Mail.total === 1 ? qsTr("%1 · 1 mensagem").arg(email)
                                                 : qsTr("%1 · %2 mensagens").arg(email).arg(Mail.total)
                     }
-                    color: LingmoUI.Theme.disabledTextColor
-                    font.pointSize: LingmoUI.Theme.fontSize * 0.85
+                    color: LingmoUI.Theme.secondaryTextColor
+                    font.pointSize: LingmoUI.Units.fontCaption
                     elide: Text.ElideRight
                 }
             }
 
-            Spinner {
-                Layout.preferredWidth: 20
-                Layout.preferredHeight: 20
+            LingmoUI.Spinner {
+                size: 20
                 running: Mail.loadingInbox && Mail.inboxLoaded
             }
 
-            IconButton {
+            LingmoUI.IconButton {
                 visible: control.imap
                 iconName: "view-filter"
                 tipText: qsTr("Regras automáticas")
                 onClicked: control.rulesRequested()
             }
 
-            IconButton {
+            LingmoUI.IconButton {
                 visible: control.imap
                 iconName: Mail.newestFirst ? "view-sort-descending" : "view-sort-ascending"
                 tipText: Mail.newestFirst ? qsTr("Mais recentes primeiro (clique para inverter)")
@@ -222,7 +221,7 @@ Item {
                 onClicked: Mail.setNewestFirst(!Mail.newestFirst)
             }
 
-            IconButton {
+            LingmoUI.IconButton {
                 iconName: "view-refresh"
                 tipText: qsTr("Buscar mensagens novas (F5)")
                 enabled: Mail.currentAccountId !== "" && !Mail.loadingInbox
@@ -245,7 +244,7 @@ Item {
                 leftPadding: LingmoUI.Units.largeSpacing
                 color: LingmoUI.Theme.textColor
                 placeholderTextColor: LingmoUI.Theme.disabledTextColor
-                font.pointSize: LingmoUI.Theme.fontSize
+                font.pointSize: LingmoUI.Units.fontBody
                 validator: RegularExpressionValidator { regularExpression: /[^\r\n]{0,200}/ }
                 onAccepted: Mail.search(searchField.currentValue, text)
                 onTextChanged: if (text === "" && Mail.searchQuery !== "") Mail.search(searchField.currentValue, "")
@@ -254,7 +253,7 @@ Item {
                 // Pill-shaped, like the store's search field
                 background: Rectangle {
                     radius: height / 2
-                    color: LingmoUI.Theme.darkMode ? Qt.rgba(1, 1, 1, 0.08) : Qt.rgba(0, 0, 0, 0.05)
+                    color: LingmoUI.Theme.alternateBackgroundColor
                     border.width: search.activeFocus ? 2 : 0
                     border.color: LingmoUI.Theme.highlightColor
                 }
@@ -284,48 +283,18 @@ Item {
             spacing: LingmoUI.Units.smallSpacing
             visible: control.imap
 
-            Flow {
+            LingmoUI.SegmentedControl {
+                id: filters
+                readonly property var keys: ["all", "unread", "flagged", "attachment"]
                 Layout.fillWidth: true
-                spacing: LingmoUI.Units.smallSpacing
-                Repeater {
-                    model: [
-                        { key: "all", label: qsTr("Todas") },
-                        { key: "unread", label: qsTr("Não lidas") },
-                        { key: "flagged", label: qsTr("Com estrela") },
-                        { key: "attachment", label: qsTr("Com anexo") }
-                    ]
-                    delegate: AbstractButton {
-                        id: chip
-                        required property var modelData
-                        readonly property bool active: Mail.filter === modelData.key
-                        implicitHeight: 26
-                        implicitWidth: chipLabel.implicitWidth + LingmoUI.Units.largeSpacing * 1.5
-                        hoverEnabled: true
-                        checkable: false
-                        Accessible.role: Accessible.RadioButton
-                        Accessible.name: modelData.label
-                        Accessible.checked: active
-                        onClicked: Mail.setFilter(modelData.key)
-                        background: Rectangle {
-                            radius: height / 2
-                            color: chip.active ? LingmoUI.Theme.highlightColor
-                                 : chip.hovered ? Qt.rgba(LingmoUI.Theme.textColor.r, LingmoUI.Theme.textColor.g,
-                                                          LingmoUI.Theme.textColor.b, 0.1)
-                                 : LingmoUI.Theme.alternateBackgroundColor
-                            Behavior on color { ColorAnimation { duration: 120 } }
-                        }
-                        contentItem: Label {
-                            id: chipLabel
-                            text: chip.modelData.label
-                            horizontalAlignment: Text.AlignHCenter
-                            verticalAlignment: Text.AlignVCenter
-                            font.pointSize: LingmoUI.Theme.fontSize * 0.9
-                            color: chip.active ? LingmoUI.Theme.highlightedTextColor : LingmoUI.Theme.textColor
-                        }
-                    }
+                fillWidth: true
+                model: [qsTr("Todas"), qsTr("Não lidas"), qsTr("Com estrela"), qsTr("Com anexo")]
+                currentIndex: keys.indexOf(Mail.filter)
+                onActivated: (index) => {
+                    Mail.setFilter(keys[index])
+                    currentIndex = Qt.binding(() => keys.indexOf(Mail.filter))
                 }
             }
-
         }
 
         // ---------- Bulk actions
@@ -344,39 +313,40 @@ Item {
                 spacing: 2
 
                 Label {
+                    font.pointSize: LingmoUI.Units.fontBody
                     Layout.fillWidth: true
                     text: qsTr("%1 selecionadas").arg(control.selectedIds.length)
                     color: LingmoUI.Theme.textColor
                     elide: Text.ElideRight
                 }
-                IconButton {
+                LingmoUI.IconButton {
                     iconName: control.anyUnread(control.selectedIds) ? "mail-mark-read" : "mail-mark-unread"
                     tipText: control.anyUnread(control.selectedIds) ? qsTr("Marcar como lidas (Ctrl+U)")
                                                                     : qsTr("Marcar como não lidas (Ctrl+U)")
                     onClicked: control.toggleRead()
                 }
-                IconButton {
+                LingmoUI.IconButton {
                     iconName: "rating"
                     tipText: qsTr("Estrela (S)")
                     onClicked: control.toggleStar()
                 }
-                IconButton {
+                LingmoUI.IconButton {
                     iconName: "mail-archive"
                     tipText: qsTr("Arquivar (E)")
                     onClicked: control.archiveSelected()
                 }
-                IconButton {
+                LingmoUI.IconButton {
                     id: bulkMove
                     iconName: "folder"
                     tipText: qsTr("Mover para…")
                     onClicked: control.moveRequested(control.selectedIds, bulkMove)
                 }
-                IconButton {
+                LingmoUI.IconButton {
                     iconName: "edit-delete"
                     tipText: control.inTrash ? qsTr("Apagar definitivamente (Del)") : qsTr("Mover para a Lixeira (Del)")
                     onClicked: control.deleteSelected()
                 }
-                IconButton {
+                LingmoUI.IconButton {
                     iconName: "edit-clear"
                     tipText: qsTr("Limpar seleção")
                     onClicked: control.clearSelection()
@@ -424,10 +394,9 @@ Item {
                          : row.picked && control.selectedIds.length > 1
                            ? Qt.rgba(LingmoUI.Theme.highlightColor.r, LingmoUI.Theme.highlightColor.g,
                                      LingmoUI.Theme.highlightColor.b, 0.25)
-                         : row.hovered ? Qt.rgba(LingmoUI.Theme.textColor.r, LingmoUI.Theme.textColor.g,
-                                                 LingmoUI.Theme.textColor.b, 0.1)
+                         : row.hovered ? LingmoUI.Theme.hoverColor
                          : "transparent"
-                    Behavior on color { ColorAnimation { duration: 150; easing.type: Easing.OutCubic } }
+                    Behavior on color { ColorAnimation { duration: LingmoUI.Units.shortDuration; easing.type: LingmoUI.Units.easing } }
                 }
 
                 MouseArea {
@@ -472,6 +441,7 @@ Item {
                         RowLayout {
                             Layout.fillWidth: true
                             Label {
+                                font.pointSize: LingmoUI.Units.fontBody
                                 Layout.fillWidth: true
                                 text: row.senderName || qsTr("(Sem remetente)")
                                 font.bold: row.unread
@@ -483,19 +453,21 @@ Item {
                                 text: row.when || ""
                                 font.bold: row.unread
                                 color: row.current ? LingmoUI.Theme.highlightedTextColor
-                                     : row.unread ? LingmoUI.Theme.highlightColor : LingmoUI.Theme.disabledTextColor
-                                font.pointSize: LingmoUI.Theme.fontSize * 0.85
+                                     : row.unread ? LingmoUI.Theme.highlightColor : LingmoUI.Theme.secondaryTextColor
+                                font.pointSize: LingmoUI.Units.fontCaption
                             }
                         }
                         RowLayout {
                             Layout.fillWidth: true
                             spacing: LingmoUI.Units.smallSpacing
                             Label {
+                                font.pointSize: LingmoUI.Units.fontBody
                                 Layout.fillWidth: true
                                 text: row.subject
                                 font.bold: row.unread
-                                color: row.current ? LingmoUI.Theme.highlightedTextColor : LingmoUI.Theme.textColor
-                                opacity: row.unread ? 1 : 0.85
+                                color: row.current ? LingmoUI.Theme.highlightedTextColor
+                                     : row.unread ? LingmoUI.Theme.textColor : LingmoUI.Theme.secondaryTextColor
+                                Behavior on color { ColorAnimation { duration: LingmoUI.Units.shortDuration } }
                                 elide: Text.ElideRight
                                 textFormat: Text.PlainText
                             }
@@ -507,10 +479,9 @@ Item {
                                 smooth: true
                                 Accessible.name: qsTr("Com anexo")
                             }
-                            IconButton {
+                            LingmoUI.IconButton {
                                 visible: control.imap && (row.starred || row.hovered)
-                                implicitWidth: 22
-                                implicitHeight: 22
+                                size: 22
                                 iconName: row.starred ? "rating" : "rating-unrated"
                                 tipText: row.starred ? qsTr("Remover estrela") : qsTr("Marcar com estrela")
                                 onClicked: Mail.setStarred([row.messageId], !row.starred)
@@ -549,7 +520,7 @@ Item {
                 width: list.width
                 height: Mail.hasMore ? loadMore.implicitHeight + LingmoUI.Units.largeSpacing * 2 : 0
                 visible: Mail.hasMore
-                ActionButton {
+                LingmoUI.ActionButton {
                     id: loadMore
                     anchors.centerIn: parent
                     text: Mail.loadingMore ? qsTr("Carregando…") : qsTr("Carregar mais")
@@ -559,39 +530,30 @@ Item {
             }
 
             // ---------- Empty and loading states
-            ColumnLayout {
+            LingmoUI.EmptyState {
                 anchors.centerIn: parent
                 width: parent.width - LingmoUI.Units.largeSpacing * 2
-                spacing: LingmoUI.Units.largeSpacing
                 visible: list.count === 0
-
-                Spinner {
-                    Layout.alignment: Qt.AlignHCenter
-                    running: Mail.loadingInbox && !Mail.inboxLoaded
+                busy: Mail.loadingInbox && !Mail.inboxLoaded
+                iconSize: LingmoUI.Units.iconSizes.large
+                iconName: Mail.currentAccountId === "" ? "mail-message"
+                        : !Mail.inboxLoaded ? "dialog-warning"
+                        : Mail.searchQuery !== "" || Mail.filter !== "all" ? "edit-find"
+                        : Mail.folderIcon(Mail.currentFolderInfo.role || "")
+                title: {
+                    if (Mail.currentAccountId === "")
+                        return qsTr("Adicione uma conta para ver suas mensagens")
+                    if (Mail.loadingInbox && !Mail.inboxLoaded)
+                        return qsTr("Carregando mensagens…")
+                    if (!Mail.inboxLoaded)
+                        return qsTr("Não foi possível carregar esta pasta")
+                    if (Mail.searchQuery !== "" || Mail.filter !== "all")
+                        return qsTr("Nenhuma mensagem encontrada")
+                    return qsTr("Nenhuma mensagem nesta pasta")
                 }
-                Label {
-                    Layout.fillWidth: true
-                    horizontalAlignment: Text.AlignHCenter
-                    wrapMode: Text.Wrap
-                    color: LingmoUI.Theme.disabledTextColor
-                    text: {
-                        if (Mail.currentAccountId === "")
-                            return qsTr("Adicione uma conta para ver suas mensagens")
-                        if (Mail.loadingInbox && !Mail.inboxLoaded)
-                            return qsTr("Carregando mensagens…")
-                        if (!Mail.inboxLoaded)
-                            return qsTr("Não foi possível carregar esta pasta")
-                        if (Mail.searchQuery !== "" || Mail.filter !== "all")
-                            return qsTr("Nenhuma mensagem encontrada")
-                        return qsTr("Nenhuma mensagem nesta pasta")
-                    }
-                }
-                ActionButton {
-                    Layout.alignment: Qt.AlignHCenter
-                    visible: Mail.currentAccountId !== "" && !Mail.inboxLoaded && !Mail.loadingInbox
-                    text: qsTr("Tentar novamente")
-                    onClicked: Mail.refresh()
-                }
+                actionText: Mail.currentAccountId !== "" && !Mail.inboxLoaded && !Mail.loadingInbox ? qsTr("Tentar novamente") : ""
+                actionPrimary: false
+                onActionTriggered: Mail.refresh()
             }
         }
     }

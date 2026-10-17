@@ -25,7 +25,7 @@ import Lingmo.Mail
 import "CalendarUtil.js" as Util
 
 // One task: check circle, title, due date, priority, list
-LingmoUI.RoundedRect {
+LingmoUI.Card {
     id: row
 
     property var task: ({})
@@ -40,10 +40,7 @@ LingmoUI.RoundedRect {
     readonly property color tone: Util.tone(task.color, LingmoUI.Theme)
 
     implicitHeight: content.implicitHeight + LingmoUI.Units.largeSpacing
-    radius: LingmoUI.Theme.mediumRadius
-    color: hover.hovered ? LingmoUI.Theme.alternateBackgroundColor : LingmoUI.Theme.secondBackgroundColor
-
-    HoverHandler { id: hover }
+    hoverEnabled: true
     TapHandler { onTapped: row.openRequested() }
 
     function dueText() {
@@ -84,13 +81,14 @@ LingmoUI.RoundedRect {
             border.width: 2
             border.color: row.task.done ? LingmoUI.Theme.highlightColor
                         : row.task.priority > 0 && row.task.priority <= 4 ? LingmoUI.Theme.redColor
-                        : LingmoUI.Theme.disabledTextColor
-            Behavior on color { ColorAnimation { duration: 150 } }
+                        : LingmoUI.Theme.secondaryTextColor
+            Behavior on color { ColorAnimation { duration: LingmoUI.Units.shortDuration } }
             Accessible.role: Accessible.CheckBox
             Accessible.checked: !!row.task.done
             Accessible.name: qsTr("Concluída")
 
             Label {
+                font.pointSize: LingmoUI.Units.fontBody
                 anchors.centerIn: parent
                 visible: !!row.task.done
                 text: "✓"
@@ -111,10 +109,11 @@ LingmoUI.RoundedRect {
             spacing: 2
 
             Label {
+                font.pointSize: LingmoUI.Units.fontBody
                 Layout.fillWidth: true
                 text: row.task.title || ""
                 font.strikeout: !!row.task.done
-                color: row.task.done ? LingmoUI.Theme.disabledTextColor : LingmoUI.Theme.textColor
+                color: row.task.done ? LingmoUI.Theme.secondaryTextColor : LingmoUI.Theme.textColor
                 elide: Text.ElideRight
                 textFormat: Text.PlainText
             }
@@ -122,8 +121,8 @@ LingmoUI.RoundedRect {
                 Layout.fillWidth: true
                 visible: !!row.task.notes
                 text: (row.task.notes || "").replace(/\s+/g, " ").trim()
-                color: LingmoUI.Theme.disabledTextColor
-                font.pointSize: LingmoUI.Theme.fontSize * 0.85
+                color: LingmoUI.Theme.secondaryTextColor
+                font.pointSize: LingmoUI.Units.fontCaption
                 elide: Text.ElideRight
                 maximumLineCount: 1
                 textFormat: Text.PlainText
@@ -134,15 +133,15 @@ LingmoUI.RoundedRect {
                 Label {
                     visible: row.hasDue
                     text: row.dueText()
-                    color: row.overdue ? LingmoUI.Theme.redColor : LingmoUI.Theme.disabledTextColor
-                    font.pointSize: LingmoUI.Theme.fontSize * 0.85
+                    color: row.overdue ? LingmoUI.Theme.redColor : LingmoUI.Theme.secondaryTextColor
+                    font.pointSize: LingmoUI.Units.fontCaption
                 }
                 Label {
                     visible: row.task.priority > 0 && !row.task.done
                     text: row.task.priority <= 4 ? qsTr("Alta") : row.task.priority === 5 ? qsTr("Média") : qsTr("Baixa")
                     color: row.task.priority <= 4 ? LingmoUI.Theme.redColor
-                         : row.task.priority === 5 ? LingmoUI.Theme.orangeColor : LingmoUI.Theme.disabledTextColor
-                    font.pointSize: LingmoUI.Theme.fontSize * 0.85
+                         : row.task.priority === 5 ? LingmoUI.Theme.orangeColor : LingmoUI.Theme.secondaryTextColor
+                    font.pointSize: LingmoUI.Units.fontCaption
                 }
                 RowLayout {
                     visible: row.showList
@@ -155,21 +154,21 @@ LingmoUI.RoundedRect {
                     }
                     Label {
                         text: row.task.listName || ""
-                        color: LingmoUI.Theme.disabledTextColor
-                        font.pointSize: LingmoUI.Theme.fontSize * 0.85
+                        color: LingmoUI.Theme.secondaryTextColor
+                        font.pointSize: LingmoUI.Units.fontCaption
                         textFormat: Text.PlainText
                     }
                 }
             }
         }
 
-        CalendarIconButton {
-            opacity: hover.hovered && !row.task.readOnly ? 1 : 0
+        LingmoUI.IconButton {
+            opacity: row.hovered && !row.task.readOnly ? 1 : 0
             enabled: !row.task.readOnly
             iconName: "edit-delete"
             tipText: qsTr("Excluir tarefa")
             onClicked: Calendar.deleteTask(row.task.calendarId, row.task.file)
-            Behavior on opacity { NumberAnimation { duration: 120 } }
+            Behavior on opacity { NumberAnimation { duration: LingmoUI.Units.veryShortDuration } }
         }
     }
 }

@@ -35,7 +35,7 @@ LingmoUI.Window {
 
     // As in Settings: nearly opaque, title strip shared with the sidebar
     background.opacity: LingmoUI.Theme.darkMode ? 0.88 : 0.97
-    header.height: 40
+    header.height: LingmoUI.Units.windowHeaderHeight
     contentTopMargin: 0
 
     LayoutMirroring.enabled: Qt.application.layoutDirection === Qt.RightToLeft
@@ -139,22 +139,23 @@ LingmoUI.Window {
                 spacing: LingmoUI.Units.smallSpacing
 
                 Item { Layout.fillWidth: true }
-                Spinner {
-                    Layout.preferredWidth: 16
-                    Layout.preferredHeight: 16
+                LingmoUI.Spinner {
+                    size: 16
                     running: Mail.busy && !Mail.setupBusy
                 }
                 Label {
+                    font.pointSize: LingmoUI.Units.fontCaption
                     Layout.maximumWidth: 420
                     elide: Text.ElideRight
-                    color: LingmoUI.Theme.disabledTextColor
+                    color: LingmoUI.Theme.secondaryTextColor
                     opacity: statusTimer.running || Mail.setupBusy ? 1 : 0
                     text: Mail.status
-                    Behavior on opacity { NumberAnimation { duration: 200 } }
+                    Behavior on opacity { NumberAnimation { duration: LingmoUI.Units.shortDuration } }
                 }
             }
 
-            Banner {
+            LingmoUI.Banner {
+                type: LingmoUI.Banner.Error
                 Layout.fillWidth: true
                 Layout.leftMargin: LingmoUI.Units.largeSpacing * 1.5
                 Layout.rightMargin: LingmoUI.Units.largeSpacing * 1.5
@@ -180,40 +181,19 @@ LingmoUI.Window {
                             width: Math.min(parent.width - 80, 420)
                             spacing: LingmoUI.Units.largeSpacing * 1.5
 
-                            Image {
-                                Layout.alignment: Qt.AlignHCenter
-                                Layout.preferredWidth: LingmoUI.Units.iconSizes.huge * 1.5
-                                Layout.preferredHeight: LingmoUI.Units.iconSizes.huge * 1.5
-                                source: "qrc:/lingmo-mail.svg"
-                                sourceSize: Qt.size(192, 192)
-                            }
-                            Spinner {
-                                Layout.alignment: Qt.AlignHCenter
-                                running: !Mail.accountsLoaded
-                            }
-                            Label {
+                            LingmoUI.EmptyState {
                                 Layout.fillWidth: true
-                                visible: Mail.accountsLoaded
-                                horizontalAlignment: Text.AlignHCenter
-                                wrapMode: Text.Wrap
-                                text: qsTr("Bem-vindo ao E-mail")
-                                font.pointSize: LingmoUI.Theme.fontSize * 1.5
-                                font.bold: true
-                                color: LingmoUI.Theme.textColor
-                            }
-                            Label {
-                                Layout.fillWidth: true
-                                visible: Mail.accountsLoaded
-                                horizontalAlignment: Text.AlignHCenter
-                                wrapMode: Text.Wrap
-                                text: qsTr("Adicione sua conta do Gmail, Yahoo, iCloud ou de qualquer provedor com IMAP ou POP3. Mensagens são mostradas só como texto, sem conteúdo remoto.")
-                                color: LingmoUI.Theme.disabledTextColor
+                                iconName: "qrc:/lingmo-mail.svg"
+                                iconSize: LingmoUI.Units.iconSizes.huge * 1.5
+                                busy: !Mail.accountsLoaded
+                                title: Mail.accountsLoaded ? qsTr("Bem-vindo ao E-mail") : ""
+                                text: Mail.accountsLoaded ? qsTr("Adicione sua conta do Gmail, Yahoo, iCloud ou de qualquer provedor com IMAP ou POP3. Mensagens são mostradas só como texto, sem conteúdo remoto.") : ""
                             }
                             SetupGuide {
                                 Layout.fillWidth: true
                                 visible: Mail.accountsLoaded
                             }
-                            ActionButton {
+                            LingmoUI.ActionButton {
                                 Layout.alignment: Qt.AlignHCenter
                                 visible: Mail.accountsLoaded
                                 primary: true
@@ -235,11 +215,9 @@ LingmoUI.Window {
                         spacing: LingmoUI.Units.largeSpacing
                         visible: Mail.accounts.length > 0
 
-                        LingmoUI.RoundedRect {
+                        LingmoUI.Card {
                             Layout.preferredWidth: Math.max(320, Math.min(400, rootWindow.width * 0.32))
                             Layout.fillHeight: true
-                            radius: LingmoUI.Theme.mediumRadius
-                            color: LingmoUI.Theme.secondBackgroundColor
 
                             MessageList {
                                 id: messageList
@@ -249,11 +227,9 @@ LingmoUI.Window {
                             }
                         }
 
-                        LingmoUI.RoundedRect {
+                        LingmoUI.Card {
                             Layout.fillWidth: true
                             Layout.fillHeight: true
-                            radius: LingmoUI.Theme.mediumRadius
-                            color: LingmoUI.Theme.secondBackgroundColor
 
                             MessageReader {
                                 anchors.fill: parent
@@ -352,7 +328,7 @@ LingmoUI.Window {
             spacing: 2
             boundsBehavior: Flickable.StopAtBounds
             ScrollBar.vertical: ScrollBar {}
-            delegate: SideBarItem {
+            delegate: LingmoUI.SideBarItem {
                 required property var modelData
                 width: ListView.view.width
                 indent: Math.min(modelData.depth || 0, 4) * LingmoUI.Units.largeSpacing
@@ -368,7 +344,7 @@ LingmoUI.Window {
 
         buttons: [
             Item { Layout.fillWidth: true },
-            ActionButton {
+            LingmoUI.ActionButton {
                 text: qsTr("Cancelar")
                 onClicked: moveDialog.close()
             }

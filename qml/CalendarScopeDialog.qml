@@ -50,24 +50,25 @@ MailPopup {
     }
 
     Label {
+        font.pointSize: LingmoUI.Units.fontCaption
         width: parent.width
         wrapMode: Text.Wrap
-        color: LingmoUI.Theme.disabledTextColor
+        color: LingmoUI.Theme.secondaryTextColor
         text: dialog.deleting ? qsTr("Este evento se repete. O que você quer excluir?")
                               : qsTr("Este evento se repete. Onde a alteração deve valer?")
     }
 
     buttons: [
         Item { Layout.fillWidth: true },
-        ActionButton {
+        LingmoUI.ActionButton {
             text: qsTr("Cancelar")
             onClicked: dialog.close()
         },
-        ActionButton {
+        LingmoUI.ActionButton {
             text: qsTr("Só esta ocorrência")
             onClicked: dialog.pick("this")
         },
-        ActionButton {
+        LingmoUI.ActionButton {
             text: qsTr("Todas")
             primary: !dialog.deleting
             destructive: dialog.deleting

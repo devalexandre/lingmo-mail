@@ -102,6 +102,7 @@ ColumnLayout {
     ]
 
     Label {
+        font.pointSize: LingmoUI.Units.fontBody
         Layout.fillWidth: true
         visible: !guide.onlyMatching
         wrapMode: Text.Wrap
@@ -110,11 +111,12 @@ ColumnLayout {
         text: qsTr("Como configurar")
     }
     Label {
+        font.pointSize: LingmoUI.Units.fontCaption
         Layout.fillWidth: true
         Layout.bottomMargin: LingmoUI.Units.smallSpacing
         visible: !guide.onlyMatching
         wrapMode: Text.Wrap
-        color: LingmoUI.Theme.disabledTextColor
+        color: LingmoUI.Theme.secondaryTextColor
         text: qsTr("Gmail, Yahoo e iCloud não aceitam a senha normal da conta em apps de e-mail. Crie uma senha de app, uma senha só para o E-mail, e use-a aqui.")
     }
 
@@ -132,9 +134,9 @@ ColumnLayout {
             implicitHeight: content.implicitHeight + LingmoUI.Units.largeSpacing * 2
             radius: LingmoUI.Theme.mediumRadius
             color: header.containsMouse && !guide.onlyMatching
-                   ? Qt.rgba(LingmoUI.Theme.textColor.r, LingmoUI.Theme.textColor.g, LingmoUI.Theme.textColor.b, 0.08)
+                   ? LingmoUI.Theme.hoverColor
                    : LingmoUI.Theme.alternateBackgroundColor
-            Behavior on color { ColorAnimation { duration: 150 } }
+            Behavior on color { ColorAnimation { duration: LingmoUI.Units.shortDuration } }
 
             // Opening the guide of the typed provider, closing the others
             Connections {
@@ -157,14 +159,16 @@ ColumnLayout {
                         id: titleRow
                         anchors.fill: parent
                         Label {
+                            font.pointSize: LingmoUI.Units.fontBody
                             Layout.fillWidth: true
                             text: entry.modelData.title
                             color: LingmoUI.Theme.textColor
                             font.bold: entry.expanded
                         }
                         Label {
+                            font.pointSize: LingmoUI.Units.fontCaption
                             text: entry.expanded ? "▾" : "▸"
-                            color: LingmoUI.Theme.disabledTextColor
+                            color: LingmoUI.Theme.secondaryTextColor
                         }
                     }
                     MouseArea {
@@ -184,12 +188,14 @@ ColumnLayout {
                         Layout.fillWidth: true
                         spacing: LingmoUI.Units.smallSpacing
                         Label {
+                            font.pointSize: LingmoUI.Units.fontBody
                             Layout.alignment: Qt.AlignTop
                             text: (index + 1) + "."
                             color: LingmoUI.Theme.highlightColor
                             font.bold: true
                         }
                         Label {
+                            font.pointSize: LingmoUI.Units.fontBody
                             Layout.fillWidth: true
                             wrapMode: Text.Wrap
                             text: modelData
@@ -198,7 +204,7 @@ ColumnLayout {
                     }
                 }
 
-                ActionButton {
+                LingmoUI.ActionButton {
                     Layout.topMargin: LingmoUI.Units.smallSpacing
                     visible: entry.expanded && entry.modelData.url !== ""
                     text: entry.modelData.link

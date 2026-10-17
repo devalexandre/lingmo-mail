@@ -1,9 +1,6 @@
 <RCC>
     <qresource prefix="/">
         <file>qml/Main.qml</file>
-        <file>qml/ActionButton.qml</file>
-        <file>qml/Spinner.qml</file>
-        <file>qml/Banner.qml</file>
         <file>qml/AccountsPane.qml</file>
         <file>qml/MessageList.qml</file>
         <file>qml/MessageReader.qml</file>
@@ -11,9 +8,7 @@
         <file>qml/ComposerDialog.qml</file>
         <file>qml/MailPopup.qml</file>
         <file>qml/ConfirmDialog.qml</file>
-        <file>qml/SideBarItem.qml</file>
         <file>qml/SetupGuide.qml</file>
-        <file>qml/IconButton.qml</file>
         <file>qml/RecipientField.qml</file>
         <file>qml/RulesPage.qml</file>
         <file>qml/RuleEditor.qml</file>
@@ -26,7 +21,6 @@
         <file>qml/CalendarAgendaList.qml</file>
         <file>qml/CalendarDateField.qml</file>
         <file>qml/CalendarEditDialog.qml</file>
-        <file>qml/CalendarIconButton.qml</file>
         <file>qml/CalendarList.qml</file>
         <file>qml/CalendarMiniMonth.qml</file>
         <file>qml/CalendarMonthView.qml</file>

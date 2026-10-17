@@ -43,18 +43,18 @@ Popup {
     }
 
     enter: Transition {
-        NumberAnimation { property: "opacity"; from: 0; to: 1; duration: 120 }
-        NumberAnimation { property: "scale"; from: 0.96; to: 1; duration: 120; easing.type: Easing.OutCubic }
+        NumberAnimation { property: "opacity"; from: 0; to: 1; duration: LingmoUI.Units.veryShortDuration }
+        NumberAnimation { property: "scale"; from: 0.96; to: 1; duration: LingmoUI.Units.veryShortDuration; easing.type: LingmoUI.Units.easing }
     }
     exit: Transition {
-        NumberAnimation { property: "opacity"; from: 1; to: 0; duration: 100 }
+        NumberAnimation { property: "opacity"; from: 1; to: 0; duration: LingmoUI.Units.veryShortDuration }
     }
 
     background: Rectangle {
         radius: LingmoUI.Theme.hugeRadius
         color: LingmoUI.Theme.secondBackgroundColor
         border.width: 1
-        border.color: LingmoUI.Theme.darkMode ? Qt.rgba(1, 1, 1, 0.08) : Qt.rgba(0, 0, 0, 0.08)
+        border.color: LingmoUI.Theme.borderColor
     }
 
     contentItem: ColumnLayout {
@@ -64,7 +64,7 @@ Popup {
             Layout.fillWidth: true
             visible: control.title.length > 0
             text: control.title
-            font.pointSize: LingmoUI.Theme.fontSize * 1.25
+            font.pointSize: LingmoUI.Units.fontSubheading
             font.bold: true
             color: LingmoUI.Theme.textColor
             wrapMode: Text.Wrap

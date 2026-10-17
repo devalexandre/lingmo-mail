@@ -112,7 +112,7 @@ MailPopup {
             id: titleField
             Layout.fillWidth: true
             placeholderText: qsTr("O que precisa ser feito?")
-            font.pointSize: LingmoUI.Theme.fontSize * 1.15
+            font.pointSize: LingmoUI.Units.fontBody
             maximumLength: 500
             onAccepted: if (saveButton.enabled) dialog.save()
         }
@@ -131,7 +131,7 @@ MailPopup {
             columnSpacing: LingmoUI.Units.largeSpacing
             rowSpacing: LingmoUI.Units.smallSpacing
 
-            Label { text: qsTr("Prazo"); color: LingmoUI.Theme.textColor }
+            Label { text: qsTr("Prazo"); color: LingmoUI.Theme.textColor; font.pointSize: LingmoUI.Units.fontBody }
             RowLayout {
                 spacing: LingmoUI.Units.smallSpacing
                 Switch { id: dueSwitch }
@@ -141,7 +141,7 @@ MailPopup {
                 }
             }
 
-            Label { visible: dueSwitch.checked; text: qsTr("Horário"); color: LingmoUI.Theme.textColor }
+            Label { visible: dueSwitch.checked; text: qsTr("Horário"); color: LingmoUI.Theme.textColor; font.pointSize: LingmoUI.Units.fontBody }
             RowLayout {
                 visible: dueSwitch.checked
                 spacing: LingmoUI.Units.smallSpacing
@@ -154,12 +154,12 @@ MailPopup {
                     Layout.fillWidth: true
                     visible: !timeSwitch.checked
                     text: qsTr("Lembrete às 9h do dia")
-                    color: LingmoUI.Theme.disabledTextColor
-                    font.pointSize: LingmoUI.Theme.fontSize * 0.9
+                    color: LingmoUI.Theme.secondaryTextColor
+                    font.pointSize: LingmoUI.Units.fontCaption
                 }
             }
 
-            Label { text: qsTr("Prioridade"); color: LingmoUI.Theme.textColor }
+            Label { text: qsTr("Prioridade"); color: LingmoUI.Theme.textColor; font.pointSize: LingmoUI.Units.fontBody }
             ComboBox {
                 id: priorityBox
                 Layout.fillWidth: true
@@ -167,7 +167,7 @@ MailPopup {
                 textRole: "text"
             }
 
-            Label { text: qsTr("Lista"); color: LingmoUI.Theme.textColor }
+            Label { text: qsTr("Lista"); color: LingmoUI.Theme.textColor; font.pointSize: LingmoUI.Units.fontBody }
             ComboBox {
                 id: listBox
                 Layout.fillWidth: true
@@ -184,7 +184,7 @@ MailPopup {
     }
 
     buttons: [
-        ActionButton {
+        LingmoUI.ActionButton {
             visible: dialog.editing && !dialog.readOnly
             text: qsTr("Excluir")
             destructive: true
@@ -194,11 +194,11 @@ MailPopup {
             }
         },
         Item { Layout.fillWidth: true },
-        ActionButton {
+        LingmoUI.ActionButton {
             text: dialog.readOnly ? qsTr("Fechar") : qsTr("Cancelar")
             onClicked: dialog.close()
         },
-        ActionButton {
+        LingmoUI.ActionButton {
             id: saveButton
             visible: !dialog.readOnly
             primary: true

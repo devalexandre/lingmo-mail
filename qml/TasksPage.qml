@@ -126,11 +126,9 @@ Item {
         spacing: LingmoUI.Units.largeSpacing
 
         // ---------- Views and lists
-        LingmoUI.RoundedRect {
+        LingmoUI.Card {
             Layout.preferredWidth: 250
             Layout.fillHeight: true
-            radius: LingmoUI.Theme.mediumRadius
-            color: LingmoUI.Theme.secondBackgroundColor
 
             Flickable {
                 id: side
@@ -149,45 +147,25 @@ Item {
 
                     Repeater {
                         model: page.views
-                        delegate: Rectangle {
+                        delegate: LingmoUI.SideBarItem {
                             id: entry
                             required property var modelData
-                            readonly property bool current: page.filter === modelData.key
                             readonly property int total: page.count(modelData.key)
+                            readonly property bool overdueCount: modelData.key === "overdue" && total > 0
                             Layout.fillWidth: true
-                            implicitHeight: LingmoUI.Units.fontMetrics.height + LingmoUI.Units.largeSpacing * 1.2
-                            radius: LingmoUI.Theme.mediumRadius
-                            color: current ? LingmoUI.Theme.highlightColor
-                                 : entryHover.hovered ? Qt.rgba(LingmoUI.Theme.textColor.r, LingmoUI.Theme.textColor.g,
-                                                                LingmoUI.Theme.textColor.b, 0.08) : "transparent"
-                            Behavior on color { ColorAnimation { duration: 120 } }
+                            title: modelData.text
+                            iconName: modelData.icon
+                            isCurrent: page.filter === modelData.key
+                            trailing: total > 0 && !overdueCount ? String(total) : ""
                             Accessible.role: Accessible.PageTab
-                            Accessible.name: modelData.text
-                            HoverHandler { id: entryHover }
-                            TapHandler { onTapped: page.filter = entry.modelData.key }
+                            onClicked: page.filter = modelData.key
 
-                            RowLayout {
-                                anchors.fill: parent
-                                anchors.leftMargin: LingmoUI.Units.smallSpacing
-                                anchors.rightMargin: LingmoUI.Units.largeSpacing
-                                spacing: LingmoUI.Units.smallSpacing
-                                LingmoUI.IconItem {
-                                    Layout.preferredWidth: 18
-                                    Layout.preferredHeight: 18
-                                    source: entry.modelData.icon
-                                }
-                                Label {
-                                    Layout.fillWidth: true
-                                    text: entry.modelData.text
-                                    color: entry.current ? LingmoUI.Theme.highlightedTextColor : LingmoUI.Theme.textColor
-                                }
-                                Label {
-                                    visible: entry.total > 0
-                                    text: entry.total
-                                    color: entry.current ? LingmoUI.Theme.highlightedTextColor
-                                         : entry.modelData.key === "overdue" ? LingmoUI.Theme.redColor
-                                         : LingmoUI.Theme.disabledTextColor
-                                }
+                            // Overdue tasks: a red count
+                            LingmoUI.Badge {
+                                visible: entry.overdueCount
+                                text: entry.overdueCount ? String(entry.total) : ""
+                                tone: LingmoUI.Theme.redColor
+                                inverted: entry.isCurrent
                             }
                         }
                     }
@@ -197,20 +175,20 @@ Item {
                         Layout.topMargin: LingmoUI.Units.smallSpacing
                         Layout.bottomMargin: LingmoUI.Units.smallSpacing
                         implicitHeight: 1
-                        color: Qt.rgba(LingmoUI.Theme.textColor.r, LingmoUI.Theme.textColor.g, LingmoUI.Theme.textColor.b, 0.08)
+                        color: LingmoUI.Theme.dividerColor
                     }
 
                     RowLayout {
                         Layout.fillWidth: true
                         Label {
+                            font.pointSize: LingmoUI.Units.fontBody
                             Layout.fillWidth: true
                             text: qsTr("Listas")
                             font.bold: true
                             color: LingmoUI.Theme.textColor
                         }
-                        CalendarIconButton {
-                            implicitWidth: 26
-                            implicitHeight: 26
+                        LingmoUI.IconButton {
+                            size: 26
                             iconName: "list-add"
                             tipText: qsTr("Nova lista")
                             onClicked: listDialog.create()
@@ -245,7 +223,8 @@ Item {
             Layout.fillHeight: true
             spacing: LingmoUI.Units.largeSpacing
 
-            Banner {
+            LingmoUI.Banner {
+                type: LingmoUI.Banner.Error
                 Layout.fillWidth: true
                 text: Calendar.error
                 onClosed: Calendar.clearError()
@@ -257,31 +236,31 @@ Item {
                 Label {
                     Layout.fillWidth: true
                     text: page.title
-                    font.pointSize: LingmoUI.Theme.fontSize * 1.4
+                    font.pointSize: LingmoUI.Units.fontHeading
                     font.bold: true
                     color: LingmoUI.Theme.textColor
                     elide: Text.ElideRight
                 }
                 Label {
+                    font.pointSize: LingmoUI.Units.fontCaption
                     Layout.maximumWidth: 300
                     elide: Text.ElideRight
-                    color: LingmoUI.Theme.disabledTextColor
+                    color: LingmoUI.Theme.secondaryTextColor
                     text: Calendar.syncing ? qsTr("Sincronizando…") : Calendar.status
                     visible: text.length > 0
                 }
-                Spinner {
-                    Layout.preferredWidth: 16
-                    Layout.preferredHeight: 16
+                LingmoUI.Spinner {
+                    size: 16
                     running: Calendar.busy || Calendar.syncing
                 }
-                CalendarIconButton {
+                LingmoUI.IconButton {
                     visible: Calendar.accounts.length > 0
                     enabled: !Calendar.syncing
                     iconName: "view-refresh"
                     tipText: qsTr("Sincronizar")
                     onClicked: Calendar.sync()
                 }
-                ActionButton {
+                LingmoUI.ActionButton {
                     primary: true
                     text: qsTr("Nova tarefa")
                     onClicked: taskDialog.create(page.filter === "list" ? page.listId : "",
@@ -290,11 +269,9 @@ Item {
             }
 
             // Quick add
-            LingmoUI.RoundedRect {
+            LingmoUI.Card {
                 Layout.fillWidth: true
                 implicitHeight: quickRow.implicitHeight + LingmoUI.Units.smallSpacing * 2
-                radius: LingmoUI.Theme.mediumRadius
-                color: LingmoUI.Theme.secondBackgroundColor
                 visible: page.filter !== "done"
 
                 RowLayout {
@@ -316,7 +293,7 @@ Item {
                         maximumLength: 500
                         onAccepted: page.quickAdd()
                     }
-                    ActionButton {
+                    LingmoUI.ActionButton {
                         text: qsTr("Adicionar")
                         enabled: quickField.text.trim().length > 0
                         onClicked: page.quickAdd()
@@ -343,28 +320,16 @@ Item {
                     onOpenRequested: taskDialog.edit(modelData)
                 }
 
-                ColumnLayout {
+                LingmoUI.EmptyState {
                     anchors.centerIn: parent
                     width: Math.min(parent.width - 80, 380)
                     visible: list.count === 0 && Calendar.tasksLoaded
-                    spacing: LingmoUI.Units.smallSpacing
-                    LingmoUI.IconItem {
-                        Layout.alignment: Qt.AlignHCenter
-                        Layout.preferredWidth: LingmoUI.Units.iconSizes.large
-                        Layout.preferredHeight: LingmoUI.Units.iconSizes.large
-                        source: "view-calendar-tasks"
-                        opacity: 0.6
-                    }
-                    Label {
-                        Layout.fillWidth: true
-                        horizontalAlignment: Text.AlignHCenter
-                        wrapMode: Text.Wrap
-                        color: LingmoUI.Theme.disabledTextColor
-                        text: page.filter === "today" ? qsTr("Nada para hoje. Adicione uma tarefa acima ou crie uma a partir de um e-mail.")
-                            : page.filter === "overdue" ? qsTr("Nenhuma tarefa atrasada.")
-                            : page.filter === "done" ? qsTr("Nenhuma tarefa concluída ainda.")
-                            : qsTr("Nenhuma tarefa aqui.")
-                    }
+                    iconName: "view-calendar-tasks"
+                    iconSize: LingmoUI.Units.iconSizes.large
+                    text: page.filter === "today" ? qsTr("Nada para hoje. Adicione uma tarefa acima ou crie uma a partir de um e-mail.")
+                        : page.filter === "overdue" ? qsTr("Nenhuma tarefa atrasada.")
+                        : page.filter === "done" ? qsTr("Nenhuma tarefa concluída ainda.")
+                        : qsTr("Nenhuma tarefa aqui.")
                 }
             }
         }

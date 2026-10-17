@@ -68,18 +68,19 @@ Item {
                 spacing: 0
                 Label {
                     text: qsTr("Contatos")
-                    font.pointSize: LingmoUI.Theme.fontSize * 1.5
+                    font.pointSize: LingmoUI.Units.fontHeading
                     font.bold: true
                     color: LingmoUI.Theme.textColor
                 }
                 Label {
+                    font.pointSize: LingmoUI.Units.fontCaption
                     Layout.fillWidth: true
                     text: qsTr("Guardados só neste computador. Quem recebe suas mensagens entra como coletado automaticamente.")
-                    color: LingmoUI.Theme.disabledTextColor
+                    color: LingmoUI.Theme.secondaryTextColor
                     wrapMode: Text.Wrap
                 }
             }
-            ActionButton {
+            LingmoUI.ActionButton {
                 primary: true
                 text: qsTr("Novo contato")
                 onClicked: control.editRequested({})
@@ -102,7 +103,7 @@ Item {
                 Keys.onEscapePressed: text = ""
                 background: Rectangle {
                     radius: height / 2
-                    color: LingmoUI.Theme.darkMode ? Qt.rgba(1, 1, 1, 0.08) : Qt.rgba(0, 0, 0, 0.05)
+                    color: LingmoUI.Theme.alternateBackgroundColor
                     border.width: search.activeFocus ? 2 : 0
                     border.color: LingmoUI.Theme.highlightColor
                 }
@@ -126,15 +127,13 @@ Item {
 
             LingmoUI.WheelHandler { target: list }
 
-            delegate: LingmoUI.RoundedRect {
+            delegate: LingmoUI.Card {
                 id: card
                 required property var modelData
                 required property int index
                 width: ListView.view.width
                 implicitHeight: row.implicitHeight + LingmoUI.Units.largeSpacing * 1.5
-                radius: LingmoUI.Theme.mediumRadius
-                color: hover.hovered ? LingmoUI.Theme.alternateBackgroundColor : LingmoUI.Theme.secondBackgroundColor
-                HoverHandler { id: hover }
+                hoverEnabled: true
 
                 RowLayout {
                     id: row
@@ -149,6 +148,7 @@ Item {
                         radius: 16
                         color: control.tileColors[(card.modelData.name || card.modelData.emails[0] || "?").charCodeAt(0) % control.tileColors.length]
                         Label {
+                            font.pointSize: LingmoUI.Units.fontBody
                             anchors.centerIn: parent
                             text: (card.modelData.name || card.modelData.emails[0] || "?")[0].toUpperCase()
                             color: LingmoUI.Theme.highlightedTextColor
@@ -162,6 +162,7 @@ Item {
                         RowLayout {
                             Layout.fillWidth: true
                             Label {
+                                font.pointSize: LingmoUI.Units.fontBody
                                 Layout.fillWidth: true
                                 text: card.modelData.name || card.modelData.emails[0]
                                 font.bold: true
@@ -172,31 +173,32 @@ Item {
                             Label {
                                 visible: card.modelData.collected
                                 text: qsTr("Coletado automaticamente")
-                                color: LingmoUI.Theme.disabledTextColor
-                                font.pointSize: LingmoUI.Theme.fontSize * 0.85
+                                color: LingmoUI.Theme.secondaryTextColor
+                                font.pointSize: LingmoUI.Units.fontCaption
                             }
                         }
                         Label {
+                            font.pointSize: LingmoUI.Units.fontCaption
                             Layout.fillWidth: true
                             text: [card.modelData.emails.join(", "), card.modelData.phone].filter(x => x).join("  ·  ")
-                            color: LingmoUI.Theme.disabledTextColor
+                            color: LingmoUI.Theme.secondaryTextColor
                             elide: Text.ElideRight
                             textFormat: Text.PlainText
                         }
                     }
 
-                    IconButton {
+                    LingmoUI.IconButton {
                         iconName: "mail-message-new"
                         tipText: qsTr("Escrever e-mail")
                         enabled: card.modelData.emails.length > 0 && Mail.currentAccountId !== ""
                         onClicked: control.writeRequested(control.recipient(card.modelData))
                     }
-                    IconButton {
+                    LingmoUI.IconButton {
                         iconName: "document-edit"
                         tipText: qsTr("Editar")
                         onClicked: control.editRequested(card.modelData)
                     }
-                    IconButton {
+                    LingmoUI.IconButton {
                         iconName: "edit-delete"
                         tipText: qsTr("Apagar contato")
                         onClicked: {
@@ -209,17 +211,16 @@ Item {
                 }
             }
 
-            Label {
+            LingmoUI.EmptyState {
                 anchors.centerIn: parent
                 width: Math.min(parent.width - 40, 420)
                 visible: list.count === 0
-                horizontalAlignment: Text.AlignHCenter
-                wrapMode: Text.Wrap
-                color: LingmoUI.Theme.disabledTextColor
-                font.pointSize: LingmoUI.Theme.fontSize * 1.1
-                text: !Mail.contactsLoaded ? qsTr("Carregando contatos…")
-                    : search.text.trim() ? qsTr("Nenhum contato encontrado")
-                    : qsTr("Nenhum contato ainda")
+                busy: !Mail.contactsLoaded
+                iconName: search.text.trim() ? "edit-find" : "x-office-address-book"
+                iconSize: LingmoUI.Units.iconSizes.large
+                title: !Mail.contactsLoaded ? qsTr("Carregando contatos…")
+                     : search.text.trim() ? qsTr("Nenhum contato encontrado")
+                     : qsTr("Nenhum contato ainda")
             }
         }
     }

@@ -57,7 +57,7 @@ MailPopup {
         width: parent.width
         spacing: LingmoUI.Units.largeSpacing
 
-        Label { text: qsTr("Nome"); color: LingmoUI.Theme.textColor }
+        Label { text: qsTr("Nome"); color: LingmoUI.Theme.textColor; font.pointSize: LingmoUI.Units.fontBody }
         TextField {
             id: nameField
             Layout.fillWidth: true
@@ -70,11 +70,11 @@ MailPopup {
             visible: !!(dialog.calendar && dialog.calendar.source === "caldav")
             wrapMode: Text.Wrap
             text: qsTr("O novo nome vale só neste computador.")
-            color: LingmoUI.Theme.disabledTextColor
-            font.pointSize: LingmoUI.Theme.fontSize * 0.9
+            color: LingmoUI.Theme.secondaryTextColor
+            font.pointSize: LingmoUI.Units.fontCaption
         }
 
-        Label { text: qsTr("Cor"); color: LingmoUI.Theme.textColor }
+        Label { text: qsTr("Cor"); color: LingmoUI.Theme.textColor; font.pointSize: LingmoUI.Units.fontBody }
         RowLayout {
             spacing: LingmoUI.Units.smallSpacing
             Repeater {
@@ -103,7 +103,7 @@ MailPopup {
     }
 
     buttons: [
-        ActionButton {
+        LingmoUI.ActionButton {
             visible: !!(dialog.calendar && dialog.calendar.source === "local")
             text: qsTr("Excluir")
             destructive: true
@@ -113,11 +113,11 @@ MailPopup {
             }
         },
         Item { Layout.fillWidth: true },
-        ActionButton {
+        LingmoUI.ActionButton {
             text: qsTr("Cancelar")
             onClicked: dialog.close()
         },
-        ActionButton {
+        LingmoUI.ActionButton {
             id: saveButton
             primary: true
             text: dialog.calendar ? qsTr("Salvar") : qsTr("Criar")

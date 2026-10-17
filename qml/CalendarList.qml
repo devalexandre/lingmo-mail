@@ -68,8 +68,8 @@ ColumnLayout {
                     Layout.fillWidth: true
                     leftPadding: LingmoUI.Units.smallSpacing
                     text: group.modelData.title
-                    color: LingmoUI.Theme.disabledTextColor
-                    font.pointSize: LingmoUI.Theme.fontSize * 0.9
+                    color: LingmoUI.Theme.secondaryTextColor
+                    font.pointSize: LingmoUI.Units.fontCaption
                     elide: Text.ElideRight
                 }
                 LingmoUI.IconItem {
@@ -81,10 +81,9 @@ ColumnLayout {
                     ToolTip.visible: warnHover.hovered
                     ToolTip.text: group.modelData.account ? group.modelData.account.lastError || "" : ""
                 }
-                CalendarIconButton {
+                LingmoUI.IconButton {
                     visible: !!group.modelData.account
-                    implicitWidth: 24
-                    implicitHeight: 24
+                    size: 24
                     iconName: "edit-delete"
                     tipText: qsTr("Remover esta conta")
                     onClicked: control.removeAccountRequested(group.modelData.account)
@@ -95,8 +94,8 @@ ColumnLayout {
                 visible: group.modelData.items.length === 0
                 leftPadding: LingmoUI.Units.smallSpacing
                 text: control.component === "VTODO" ? qsTr("Sem listas de tarefas") : qsTr("Sem calendários")
-                color: LingmoUI.Theme.disabledTextColor
-                font.pointSize: LingmoUI.Theme.fontSize * 0.9
+                color: LingmoUI.Theme.secondaryTextColor
+                font.pointSize: LingmoUI.Units.fontCaption
             }
 
             Repeater {
@@ -110,9 +109,8 @@ ColumnLayout {
                     implicitHeight: LingmoUI.Units.fontMetrics.height + LingmoUI.Units.largeSpacing
                     radius: LingmoUI.Theme.smallRadius
                     color: current ? LingmoUI.Theme.highlightColor
-                         : rowHover.hovered ? Qt.rgba(LingmoUI.Theme.textColor.r, LingmoUI.Theme.textColor.g,
-                                                      LingmoUI.Theme.textColor.b, 0.08) : "transparent"
-                    Behavior on color { ColorAnimation { duration: 120 } }
+                         : rowHover.hovered ? LingmoUI.Theme.hoverColor : "transparent"
+                    Behavior on color { ColorAnimation { duration: LingmoUI.Units.veryShortDuration } }
 
                     HoverHandler { id: rowHover }
                     TapHandler {
@@ -138,12 +136,12 @@ ColumnLayout {
                             color: item.modelData.hidden && !control.selectable ? "transparent" : item.tone
                             border.width: 2
                             border.color: item.current ? LingmoUI.Theme.highlightedTextColor : item.tone
-                            Behavior on color { ColorAnimation { duration: 120 } }
+                            Behavior on color { ColorAnimation { duration: LingmoUI.Units.veryShortDuration } }
                             Label {
                                 anchors.centerIn: parent
                                 visible: !control.selectable && !item.modelData.hidden
                                 text: "✓"
-                                font.pointSize: LingmoUI.Theme.fontSize * 0.7
+                                font.pointSize: LingmoUI.Units.fontCaption
                                 font.bold: true
                                 color: LingmoUI.Theme.highlightedTextColor
                             }
@@ -156,6 +154,7 @@ ColumnLayout {
                             Accessible.name: item.modelData.name
                         }
                         Label {
+                            font.pointSize: LingmoUI.Units.fontBody
                             Layout.fillWidth: true
                             text: item.modelData.name
                             elide: Text.ElideRight
@@ -165,17 +164,16 @@ ColumnLayout {
                         Label {
                             visible: !!item.modelData.readOnly
                             text: qsTr("leitura")
-                            color: item.current ? LingmoUI.Theme.highlightedTextColor : LingmoUI.Theme.disabledTextColor
-                            font.pointSize: LingmoUI.Theme.fontSize * 0.8
+                            color: item.current ? LingmoUI.Theme.highlightedTextColor : LingmoUI.Theme.secondaryTextColor
+                            font.pointSize: LingmoUI.Units.fontCaption
                         }
-                        CalendarIconButton {
-                            implicitWidth: 24
-                            implicitHeight: 24
+                        LingmoUI.IconButton {
+                            size: 24
                             opacity: rowHover.hovered ? 1 : 0
                             iconName: "document-edit"
                             tipText: qsTr("Editar")
                             onClicked: control.editRequested(item.modelData)
-                            Behavior on opacity { NumberAnimation { duration: 120 } }
+                            Behavior on opacity { NumberAnimation { duration: LingmoUI.Units.veryShortDuration } }
                         }
                     }
                 }

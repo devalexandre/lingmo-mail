@@ -35,7 +35,7 @@ Item {
     signal addAccountRequested()
     signal removeRequested(var account)
 
-    implicitWidth: 240
+    implicitWidth: LingmoUI.Units.sideBarWidth
 
     readonly property var tileColors: [LingmoUI.Theme.blueColor, LingmoUI.Theme.purpleColor, LingmoUI.Theme.orangeColor,
                                        LingmoUI.Theme.greenColor, LingmoUI.Theme.pinkColor, LingmoUI.Theme.redColor]
@@ -58,8 +58,8 @@ Item {
     Rectangle {
         anchors.fill: parent
         // Same tone as the Settings and Store sidebars
-        color: LingmoUI.Theme.darkMode ? Qt.rgba(0.11, 0.11, 0.15, 0.55) : "#EDEEF2"
-        Behavior on color { ColorAnimation { duration: 250; easing.type: Easing.Linear } }
+        color: LingmoUI.Theme.sideBarColor
+        Behavior on color { ColorAnimation { duration: LingmoUI.Units.longDuration } }
     }
 
     ColumnLayout {
@@ -76,11 +76,11 @@ Item {
             rightPadding: LingmoUI.Units.largeSpacing + LingmoUI.Units.smallSpacing
             topPadding: 2
             bottomPadding: LingmoUI.Units.smallSpacing * 1.5
-            font.pointSize: LingmoUI.Theme.fontSize * 1.6
+            font.pointSize: LingmoUI.Units.fontTitle
             font.bold: true
         }
 
-        ActionButton {
+        LingmoUI.ActionButton {
             Layout.fillWidth: true
             Layout.leftMargin: LingmoUI.Units.largeSpacing
             Layout.rightMargin: LingmoUI.Units.largeSpacing
@@ -109,10 +109,11 @@ Item {
                 spacing: LingmoUI.Units.smallSpacing
 
                 Label {
+                    font.pointSize: LingmoUI.Units.fontCaption
                     Layout.topMargin: LingmoUI.Units.largeSpacing
                     Layout.leftMargin: LingmoUI.Units.smallSpacing
                     text: qsTr("E-mail")
-                    color: LingmoUI.Theme.disabledTextColor
+                    color: LingmoUI.Theme.secondaryTextColor
                 }
 
                 Repeater {
@@ -135,15 +136,14 @@ Item {
                         Layout.fillWidth: true
                         spacing: 2
 
-                        SideBarItem {
+                        LingmoUI.SideBarItem {
                             id: row
                             Layout.fillWidth: true
                             title: accountBlock.modelData.name || accountBlock.modelData.email
                             tileText: control.initials(accountBlock.modelData)
                             tileColor: control.tileColors[accountBlock.index % control.tileColors.length]
                             emphasized: accountBlock.isOpen
-                            trailing: !accountBlock.expanded && accountBlock.inboxUnread > 0 ? String(accountBlock.inboxUnread) : ""
-                            strongTrailing: true
+                            badge: !accountBlock.expanded && accountBlock.inboxUnread > 0 ? accountBlock.inboxUnread : ""
                             Accessible.name: accountBlock.modelData.email
                             onClicked: {
                                 if (accountBlock.isOpen && control.page === "mail") {
@@ -162,10 +162,9 @@ Item {
                             ToolTip.delay: 600
 
                             // Options button, shown on hover
-                            IconButton {
+                            LingmoUI.IconButton {
                                 id: moreButton
-                                Layout.preferredWidth: 24
-                                Layout.preferredHeight: 24
+                                size: 24
                                 visible: row.hovered || hovered || accountMenu.visible
                                 iconName: "view-more-symbolic"
                                 tipText: qsTr("Opções da conta")
@@ -188,14 +187,15 @@ Item {
                         Repeater {
                             model: accountBlock.expanded ? accountBlock.folders : []
 
-                            delegate: SideBarItem {
+                            delegate: LingmoUI.SideBarItem {
                                 required property var modelData
                                 Layout.fillWidth: true
                                 indent: LingmoUI.Units.largeSpacing + Math.min(modelData.depth || 0, 4) * LingmoUI.Units.largeSpacing
                                 title: Mail.folderTitle(modelData)
                                 iconName: Mail.folderIcon(modelData.role || "")
-                                trailing: modelData.unread > 0 ? String(modelData.unread) : ""
-                                strongTrailing: modelData.role === "inbox"
+                                // Unread mail in the inbox as a badge, other folders as a plain count
+                                badge: modelData.role === "inbox" && modelData.unread > 0 ? modelData.unread : ""
+                                trailing: modelData.role !== "inbox" && modelData.unread > 0 ? String(modelData.unread) : ""
                                 isCurrent: control.page === "mail" && accountBlock.isOpen
                                            && modelData.path === Mail.currentFolder
                                 Accessible.name: title
@@ -207,7 +207,7 @@ Item {
                         }
 
                         // Folders not known yet: the inbox, until the first listing arrives
-                        SideBarItem {
+                        LingmoUI.SideBarItem {
                             Layout.fillWidth: true
                             visible: accountBlock.expanded && accountBlock.folders.length === 0 && accountBlock.isOpen
                             indent: LingmoUI.Units.largeSpacing
@@ -220,15 +220,16 @@ Item {
                 }
 
                 Label {
+                    font.pointSize: LingmoUI.Units.fontCaption
                     Layout.fillWidth: true
                     Layout.leftMargin: LingmoUI.Units.smallSpacing
                     visible: Mail.accountsLoaded && Mail.accounts.length === 0
                     wrapMode: Text.Wrap
                     text: qsTr("Nenhuma conta ainda")
-                    color: LingmoUI.Theme.disabledTextColor
+                    color: LingmoUI.Theme.secondaryTextColor
                 }
 
-                SideBarItem {
+                LingmoUI.SideBarItem {
                     Layout.fillWidth: true
                     visible: Mail.accounts.length > 0
                     title: qsTr("Regras")
@@ -247,8 +248,7 @@ Item {
             Layout.leftMargin: LingmoUI.Units.largeSpacing
             Layout.rightMargin: LingmoUI.Units.largeSpacing
             implicitHeight: 1
-            color: LingmoUI.Theme.textColor
-            opacity: 0.08
+            color: LingmoUI.Theme.dividerColor
         }
 
         ColumnLayout {
@@ -258,7 +258,7 @@ Item {
             Layout.topMargin: LingmoUI.Units.smallSpacing
             spacing: LingmoUI.Units.smallSpacing
 
-            SideBarItem {
+            LingmoUI.SideBarItem {
                 Layout.fillWidth: true
                 title: qsTr("Calendário")
                 tileText: "▦"
@@ -266,7 +266,7 @@ Item {
                 isCurrent: control.page === "calendar"
                 onClicked: control.pageRequested("calendar")
             }
-            SideBarItem {
+            LingmoUI.SideBarItem {
                 Layout.fillWidth: true
                 title: qsTr("Tarefas")
                 tileText: "✓"
@@ -274,7 +274,7 @@ Item {
                 isCurrent: control.page === "tasks"
                 onClicked: control.pageRequested("tasks")
             }
-            SideBarItem {
+            LingmoUI.SideBarItem {
                 Layout.fillWidth: true
                 title: qsTr("Contatos")
                 tileText: "@"
@@ -284,7 +284,7 @@ Item {
             }
         }
 
-        ActionButton {
+        LingmoUI.ActionButton {
             Layout.fillWidth: true
             Layout.leftMargin: LingmoUI.Units.largeSpacing
             Layout.rightMargin: LingmoUI.Units.largeSpacing

@@ -128,16 +128,18 @@ MailPopup {
             spacing: LingmoUI.Units.largeSpacing
             enabled: !Calendar.setupBusy
 
-            Banner {
+            LingmoUI.Banner {
+                type: LingmoUI.Banner.Error
                 Layout.fillWidth: true
                 text: dialog.errorText
                 onClosed: dialog.errorText = ""
             }
 
             Label {
+                font.pointSize: LingmoUI.Units.fontCaption
                 Layout.fillWidth: true
                 wrapMode: Text.Wrap
-                color: LingmoUI.Theme.disabledTextColor
+                color: LingmoUI.Theme.secondaryTextColor
                 text: qsTr("Os calendários e listas de tarefas da conta são sincronizados nos dois sentidos. Google Agenda ainda não é suportado.")
             }
 
@@ -160,7 +162,7 @@ MailPopup {
                         color: selected ? LingmoUI.Theme.highlightColor
                              : choiceHover.hovered ? Qt.darker(LingmoUI.Theme.alternateBackgroundColor, LingmoUI.Theme.darkMode ? 0.85 : 1.05)
                              : LingmoUI.Theme.alternateBackgroundColor
-                        Behavior on color { ColorAnimation { duration: 120 } }
+                        Behavior on color { ColorAnimation { duration: LingmoUI.Units.veryShortDuration } }
                         Accessible.role: Accessible.RadioButton
                         Accessible.checked: selected
                         Accessible.name: modelData.title
@@ -173,6 +175,7 @@ MailPopup {
                         }
                         Label {
                             id: choiceLabel
+                            font.pointSize: LingmoUI.Units.fontBody
                             anchors.centerIn: parent
                             width: parent.width - 8
                             horizontalAlignment: Text.AlignHCenter
@@ -189,7 +192,7 @@ MailPopup {
                 Layout.fillWidth: true
                 visible: dialog.mailChoices.length > 0
                 spacing: LingmoUI.Units.smallSpacing
-                Label { text: qsTr("Usar a conta de e-mail"); color: LingmoUI.Theme.textColor }
+                Label { text: qsTr("Usar a conta de e-mail"); color: LingmoUI.Theme.textColor; font.pointSize: LingmoUI.Units.fontBody }
                 ComboBox {
                     id: mailBox
                     Layout.fillWidth: true
@@ -203,13 +206,13 @@ MailPopup {
                 Label {
                     Layout.fillWidth: true
                     wrapMode: Text.Wrap
-                    color: LingmoUI.Theme.disabledTextColor
-                    font.pointSize: LingmoUI.Theme.fontSize * 0.9
+                    color: LingmoUI.Theme.secondaryTextColor
+                    font.pointSize: LingmoUI.Units.fontCaption
                     text: qsTr("Informe de novo a senha de app: por segurança, o calendário guarda a sua própria cópia no chaveiro.")
                 }
             }
 
-            Label { text: dialog.provider === "other" ? qsTr("Usuário") : qsTr("E-mail"); color: LingmoUI.Theme.textColor }
+            Label { text: dialog.provider === "other" ? qsTr("Usuário") : qsTr("E-mail"); color: LingmoUI.Theme.textColor; font.pointSize: LingmoUI.Units.fontBody }
             TextField {
                 id: emailField
                 Layout.fillWidth: true
@@ -218,7 +221,7 @@ MailPopup {
                 maximumLength: 320
             }
 
-            Label { visible: dialog.provider === "other"; text: qsTr("Servidor"); color: LingmoUI.Theme.textColor }
+            Label { visible: dialog.provider === "other"; text: qsTr("Servidor"); color: LingmoUI.Theme.textColor; font.pointSize: LingmoUI.Units.fontBody }
             TextField {
                 id: urlField
                 Layout.fillWidth: true
@@ -228,7 +231,7 @@ MailPopup {
                 maximumLength: 500
             }
 
-            Label { text: qsTr("Senha de app"); color: LingmoUI.Theme.textColor }
+            Label { text: qsTr("Senha de app"); color: LingmoUI.Theme.textColor; font.pointSize: LingmoUI.Units.fontBody }
             TextField {
                 id: passwordField
                 Layout.fillWidth: true
@@ -253,6 +256,7 @@ MailPopup {
                     spacing: LingmoUI.Units.smallSpacing
 
                     Label {
+                        font.pointSize: LingmoUI.Units.fontBody
                         Layout.fillWidth: true
                         text: qsTr("Como configurar: %1").arg(dialog.current.title)
                         font.bold: true
@@ -266,12 +270,14 @@ MailPopup {
                             Layout.fillWidth: true
                             spacing: LingmoUI.Units.smallSpacing
                             Label {
+                                font.pointSize: LingmoUI.Units.fontBody
                                 Layout.alignment: Qt.AlignTop
                                 text: (index + 1) + "."
                                 color: LingmoUI.Theme.highlightColor
                                 font.bold: true
                             }
                             Label {
+                                font.pointSize: LingmoUI.Units.fontBody
                                 Layout.fillWidth: true
                                 wrapMode: Text.Wrap
                                 text: modelData
@@ -279,7 +285,7 @@ MailPopup {
                             }
                         }
                     }
-                    ActionButton {
+                    LingmoUI.ActionButton {
                         Layout.topMargin: LingmoUI.Units.smallSpacing
                         visible: dialog.current.url !== ""
                         text: dialog.current.link
@@ -292,26 +298,25 @@ MailPopup {
             Label {
                 Layout.fillWidth: true
                 wrapMode: Text.Wrap
-                color: LingmoUI.Theme.disabledTextColor
-                font.pointSize: LingmoUI.Theme.fontSize * 0.9
+                color: LingmoUI.Theme.secondaryTextColor
+                font.pointSize: LingmoUI.Units.fontCaption
                 text: qsTr("A senha fica guardada no chaveiro da sessão, não em arquivos.")
             }
         }
     }
 
     buttons: [
-        Spinner {
-            Layout.preferredWidth: 22
-            Layout.preferredHeight: 22
-            running: Calendar.setupBusy
+        LingmoUI.Spinner {
+                        running: Calendar.setupBusy
         },
         Label {
+            font.pointSize: LingmoUI.Units.fontCaption
             Layout.fillWidth: true
             elide: Text.ElideRight
-            color: LingmoUI.Theme.disabledTextColor
+            color: LingmoUI.Theme.secondaryTextColor
             text: Calendar.setupBusy ? qsTr("Procurando calendários e sincronizando…") : ""
         },
-        ActionButton {
+        LingmoUI.ActionButton {
             text: qsTr("Cancelar")
             onClicked: {
                 if (Calendar.setupBusy)
@@ -320,7 +325,7 @@ MailPopup {
                     dialog.close()
             }
         },
-        ActionButton {
+        LingmoUI.ActionButton {
             id: connectButton
             primary: true
             text: qsTr("Conectar")

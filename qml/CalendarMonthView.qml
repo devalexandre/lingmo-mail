@@ -35,8 +35,7 @@ Item {
 
     readonly property var locale: Qt.locale()
     readonly property date gridStart: Util.monthGridStart(cursor, locale)
-    readonly property color lineColor: Qt.rgba(LingmoUI.Theme.textColor.r, LingmoUI.Theme.textColor.g,
-                                               LingmoUI.Theme.textColor.b, 0.08)
+    readonly property color lineColor: LingmoUI.Theme.dividerColor
 
     ColumnLayout {
         anchors.fill: parent
@@ -55,7 +54,7 @@ Item {
                     Layout.preferredWidth: 1
                     horizontalAlignment: Text.AlignHCenter
                     text: Util.capitalize(view.locale.dayName((Util.firstWeekday(view.locale) + index) % 7, Locale.ShortFormat))
-                    color: LingmoUI.Theme.disabledTextColor
+                    color: LingmoUI.Theme.secondaryTextColor
                 }
             }
         }
@@ -83,10 +82,9 @@ Item {
 
                     width: grid.width / 7
                     height: grid.height / 6
-                    color: hover.hovered ? Qt.rgba(LingmoUI.Theme.textColor.r, LingmoUI.Theme.textColor.g,
-                                                   LingmoUI.Theme.textColor.b, 0.04) : "transparent"
+                    color: hover.hovered ? LingmoUI.Theme.hoverColor : "transparent"
                     border.width: 0
-                    Behavior on color { ColorAnimation { duration: 120 } }
+                    Behavior on color { ColorAnimation { duration: LingmoUI.Units.veryShortDuration } }
 
                     HoverHandler { id: hover }
 
@@ -108,18 +106,18 @@ Item {
                         height: LingmoUI.Units.fontMetrics.height + 4
                         radius: height / 2
                         color: cell.isToday ? LingmoUI.Theme.highlightColor
-                             : dayArea.containsMouse ? Qt.rgba(LingmoUI.Theme.textColor.r, LingmoUI.Theme.textColor.g,
-                                                               LingmoUI.Theme.textColor.b, 0.1) : "transparent"
-                        Behavior on color { ColorAnimation { duration: 120 } }
+                             : dayArea.containsMouse ? LingmoUI.Theme.hoverColor : "transparent"
+                        Behavior on color { ColorAnimation { duration: LingmoUI.Units.veryShortDuration } }
 
                         Label {
                             id: dayNumber
+                            font.pointSize: LingmoUI.Units.fontBody
                             anchors.centerIn: parent
                             text: cell.day.getDate() === 1
                                   ? view.locale.toString(cell.day, "d MMM") : cell.day.getDate()
                             font.bold: cell.isToday
                             color: cell.isToday ? LingmoUI.Theme.highlightedTextColor
-                                 : cell.inMonth ? LingmoUI.Theme.textColor : LingmoUI.Theme.disabledTextColor
+                                 : cell.inMonth ? LingmoUI.Theme.textColor : LingmoUI.Theme.secondaryTextColor
                         }
                         MouseArea {
                             id: dayArea
@@ -155,8 +153,8 @@ Item {
                             visible: cell.items.length > cell.shownCount
                             leftPadding: 4
                             text: qsTr("+%1 mais").arg(cell.items.length - cell.shownCount)
-                            color: moreArea.containsMouse ? LingmoUI.Theme.highlightColor : LingmoUI.Theme.disabledTextColor
-                            font.pointSize: LingmoUI.Theme.fontSize * 0.85
+                            color: moreArea.containsMouse ? LingmoUI.Theme.highlightColor : LingmoUI.Theme.secondaryTextColor
+                            font.pointSize: LingmoUI.Units.fontCaption
                             MouseArea {
                                 id: moreArea
                                 anchors.fill: parent

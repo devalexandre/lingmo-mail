@@ -140,14 +140,15 @@ MailPopup {
             width: scroll.availableWidth
             spacing: LingmoUI.Units.largeSpacing
 
-            Banner {
+            LingmoUI.Banner {
+                type: LingmoUI.Banner.Error
                 Layout.fillWidth: true
                 text: dialog.errorText
                 onClosed: dialog.errorText = ""
             }
-            Banner {
+            LingmoUI.Banner {
                 Layout.fillWidth: true
-                error: false
+                type: LingmoUI.Banner.Info
                 text: dialog.infoText
                 onClosed: dialog.infoText = ""
             }
@@ -159,19 +160,20 @@ MailPopup {
                 spacing: LingmoUI.Units.largeSpacing
 
                 Label {
+                    font.pointSize: LingmoUI.Units.fontCaption
                     Layout.fillWidth: true
                     wrapMode: Text.Wrap
-                    color: LingmoUI.Theme.disabledTextColor
+                    color: LingmoUI.Theme.secondaryTextColor
                     text: qsTr("Digite seu e-mail: os servidores são encontrados automaticamente para os provedores mais comuns.")
                 }
-                Label { text: qsTr("Seu nome (opcional)"); color: LingmoUI.Theme.textColor }
+                Label { text: qsTr("Seu nome (opcional)"); color: LingmoUI.Theme.textColor; font.pointSize: LingmoUI.Units.fontBody }
                 TextField {
                     id: nameField
                     Layout.fillWidth: true
                     placeholderText: qsTr("Como os destinatários verão você")
                     enabled: !Mail.setupBusy
                 }
-                Label { text: qsTr("E-mail"); color: LingmoUI.Theme.textColor }
+                Label { text: qsTr("E-mail"); color: LingmoUI.Theme.textColor; font.pointSize: LingmoUI.Units.fontBody }
                 TextField {
                     id: emailField
                     Layout.fillWidth: true
@@ -190,12 +192,12 @@ MailPopup {
                 RowLayout {
                     Layout.fillWidth: true
                     visible: Mail.googleAvailable
-                    Rectangle { Layout.fillWidth: true; implicitHeight: 1; color: LingmoUI.Theme.textColor; opacity: 0.12 }
-                    Label { text: qsTr("ou"); color: LingmoUI.Theme.disabledTextColor }
-                    Rectangle { Layout.fillWidth: true; implicitHeight: 1; color: LingmoUI.Theme.textColor; opacity: 0.12 }
+                    Rectangle { Layout.fillWidth: true; implicitHeight: 1; color: LingmoUI.Theme.dividerColor }
+                    Label { text: qsTr("ou"); color: LingmoUI.Theme.secondaryTextColor; font.pointSize: LingmoUI.Units.fontCaption }
+                    Rectangle { Layout.fillWidth: true; implicitHeight: 1; color: LingmoUI.Theme.dividerColor }
                 }
 
-                ActionButton {
+                LingmoUI.ActionButton {
                     Layout.fillWidth: true
                     visible: Mail.googleAvailable
                     text: dialog.waitingGoogle ? qsTr("Aguardando o navegador…") : qsTr("Entrar com Google")
@@ -207,10 +209,11 @@ MailPopup {
                     }
                 }
                 Label {
+                    font.pointSize: LingmoUI.Units.fontCaption
                     Layout.fillWidth: true
                     visible: dialog.waitingGoogle
                     wrapMode: Text.Wrap
-                    color: LingmoUI.Theme.disabledTextColor
+                    color: LingmoUI.Theme.secondaryTextColor
                     text: qsTr("Autorize o acesso na página do Google que abriu no navegador. Esta janela continua sozinha.")
                 }
             }
@@ -233,6 +236,7 @@ MailPopup {
                         anchors.margins: LingmoUI.Units.largeSpacing
                         spacing: 2
                         Label {
+                            font.pointSize: LingmoUI.Units.fontBody
                             Layout.fillWidth: true
                             text: emailField.text.trim()
                             font.bold: true
@@ -240,16 +244,18 @@ MailPopup {
                             elide: Text.ElideRight
                         }
                         Label {
+                            font.pointSize: LingmoUI.Units.fontCaption
                             Layout.fillWidth: true
                             text: qsTr("Recebimento: %1 (%2, %3)").arg(incomingHost.text || "—")
                                   .arg(protocolBox.currentText).arg(incomingSecurity.currentText)
-                            color: LingmoUI.Theme.disabledTextColor
+                            color: LingmoUI.Theme.secondaryTextColor
                             elide: Text.ElideRight
                         }
                         Label {
+                            font.pointSize: LingmoUI.Units.fontCaption
                             Layout.fillWidth: true
                             text: qsTr("Envio: %1 (SMTP, %2)").arg(smtpHost.text || "—").arg(smtpSecurity.currentText)
-                            color: LingmoUI.Theme.disabledTextColor
+                            color: LingmoUI.Theme.secondaryTextColor
                             elide: Text.ElideRight
                         }
                     }
@@ -259,12 +265,14 @@ MailPopup {
                 RowLayout {
                     spacing: LingmoUI.Units.smallSpacing
                     Label {
+                        font.pointSize: LingmoUI.Units.fontBody
                         text: "\u25B8"
                         color: LingmoUI.Theme.highlightColor
                         rotation: dialog.showAdvanced ? 90 : 0
-                        Behavior on rotation { NumberAnimation { duration: 150; easing.type: Easing.OutCubic } }
+                        Behavior on rotation { NumberAnimation { duration: LingmoUI.Units.shortDuration; easing.type: LingmoUI.Units.easing } }
                     }
                     Label {
+                        font.pointSize: LingmoUI.Units.fontBody
                         text: qsTr("Configurações avançadas")
                         color: LingmoUI.Theme.highlightColor
                         MouseArea {
@@ -284,7 +292,7 @@ MailPopup {
                     rowSpacing: LingmoUI.Units.smallSpacing
                     enabled: !Mail.setupBusy
 
-                    Label { text: qsTr("Protocolo"); color: LingmoUI.Theme.textColor }
+                    Label { text: qsTr("Protocolo"); color: LingmoUI.Theme.textColor; font.pointSize: LingmoUI.Units.fontBody }
                     ComboBox {
                         id: protocolBox
                         Layout.fillWidth: true
@@ -297,10 +305,10 @@ MailPopup {
                         }
                     }
 
-                    Label { text: qsTr("Servidor de entrada"); color: LingmoUI.Theme.textColor }
+                    Label { text: qsTr("Servidor de entrada"); color: LingmoUI.Theme.textColor; font.pointSize: LingmoUI.Units.fontBody }
                     TextField { id: incomingHost; Layout.fillWidth: true; placeholderText: "imap.exemplo.com" }
 
-                    Label { text: qsTr("Porta"); color: LingmoUI.Theme.textColor }
+                    Label { text: qsTr("Porta"); color: LingmoUI.Theme.textColor; font.pointSize: LingmoUI.Units.fontBody }
                     RowLayout {
                         Layout.fillWidth: true
                         TextField {
@@ -321,13 +329,13 @@ MailPopup {
                         }
                     }
 
-                    Label { text: qsTr("Usuário"); color: LingmoUI.Theme.textColor }
+                    Label { text: qsTr("Usuário"); color: LingmoUI.Theme.textColor; font.pointSize: LingmoUI.Units.fontBody }
                     TextField { id: username; Layout.fillWidth: true; placeholderText: emailField.text.trim() }
 
-                    Label { text: qsTr("Servidor de saída (SMTP)"); color: LingmoUI.Theme.textColor }
+                    Label { text: qsTr("Servidor de saída (SMTP)"); color: LingmoUI.Theme.textColor; font.pointSize: LingmoUI.Units.fontBody }
                     TextField { id: smtpHost; Layout.fillWidth: true; placeholderText: "smtp.exemplo.com" }
 
-                    Label { text: qsTr("Porta"); color: LingmoUI.Theme.textColor }
+                    Label { text: qsTr("Porta"); color: LingmoUI.Theme.textColor; font.pointSize: LingmoUI.Units.fontBody }
                     RowLayout {
                         Layout.fillWidth: true
                         TextField {
@@ -348,11 +356,11 @@ MailPopup {
                         }
                     }
 
-                    Label { text: qsTr("Usuário SMTP"); color: LingmoUI.Theme.textColor }
+                    Label { text: qsTr("Usuário SMTP"); color: LingmoUI.Theme.textColor; font.pointSize: LingmoUI.Units.fontBody }
                     TextField { id: smtpUsername; Layout.fillWidth: true; placeholderText: username.text || emailField.text.trim() }
                 }
 
-                Label { text: qsTr("Senha"); color: LingmoUI.Theme.textColor }
+                Label { text: qsTr("Senha"); color: LingmoUI.Theme.textColor; font.pointSize: LingmoUI.Units.fontBody }
                 TextField {
                     id: passwordField
                     Layout.fillWidth: true
@@ -371,8 +379,8 @@ MailPopup {
                 Label {
                     Layout.fillWidth: true
                     wrapMode: Text.Wrap
-                    color: LingmoUI.Theme.disabledTextColor
-                    font.pointSize: LingmoUI.Theme.fontSize * 0.9
+                    color: LingmoUI.Theme.secondaryTextColor
+                    font.pointSize: LingmoUI.Units.fontCaption
                     text: qsTr("A senha fica guardada no chaveiro da sessão, não em arquivos.")
                         + (dialog.domain === "gmail.com" && Mail.googleAvailable ? " " + qsTr("Ou use “Entrar com Google”.") : "")
                 }
@@ -381,21 +389,20 @@ MailPopup {
     }
 
     buttons: [
-        Spinner {
-            Layout.preferredWidth: 22
-            Layout.preferredHeight: 22
-            running: Mail.setupBusy
+        LingmoUI.Spinner {
+                        running: Mail.setupBusy
         },
         Label {
+            font.pointSize: LingmoUI.Units.fontCaption
             Layout.fillWidth: true
             elide: Text.ElideRight
-            color: LingmoUI.Theme.disabledTextColor
+            color: LingmoUI.Theme.secondaryTextColor
             text: !Mail.setupBusy ? ""
                   : dialog.waitingGoogle ? qsTr("Aguardando autorização…")
                   : dialog.step === 0 ? qsTr("Procurando servidores…")
                   : qsTr("Testando a conexão…")
         },
-        ActionButton {
+        LingmoUI.ActionButton {
             text: dialog.step === 1 && !Mail.setupBusy ? qsTr("Voltar") : qsTr("Cancelar")
             onClicked: {
                 if (Mail.setupBusy) {
@@ -411,7 +418,7 @@ MailPopup {
                 }
             }
         },
-        ActionButton {
+        LingmoUI.ActionButton {
             id: connectButton
             primary: true
             text: dialog.step === 0 ? qsTr("Continuar") : qsTr("Conectar")

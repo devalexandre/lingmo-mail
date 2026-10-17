@@ -265,14 +265,15 @@ MailPopup {
             spacing: LingmoUI.Units.largeSpacing
             enabled: !dialog.readOnly
 
-            Banner {
+            LingmoUI.Banner {
+                type: LingmoUI.Banner.Error
                 Layout.fillWidth: true
                 text: dialog.errorText
                 onClosed: dialog.errorText = ""
             }
-            Banner {
+            LingmoUI.Banner {
                 Layout.fillWidth: true
-                error: false
+                type: LingmoUI.Banner.Info
                 closable: false
                 text: dialog.readOnly ? qsTr("Este calendário é somente leitura.") : ""
             }
@@ -281,7 +282,7 @@ MailPopup {
                 id: titleField
                 Layout.fillWidth: true
                 placeholderText: qsTr("Título")
-                font.pointSize: LingmoUI.Theme.fontSize * 1.15
+                font.pointSize: LingmoUI.Units.fontBody
                 maximumLength: 500
                 onAccepted: if (saveButton.enabled) dialog.save()
             }
@@ -298,7 +299,7 @@ MailPopup {
                 columnSpacing: LingmoUI.Units.largeSpacing
                 rowSpacing: LingmoUI.Units.smallSpacing
 
-                Label { text: qsTr("Dia inteiro"); color: LingmoUI.Theme.textColor }
+                Label { text: qsTr("Dia inteiro"); color: LingmoUI.Theme.textColor; font.pointSize: LingmoUI.Units.fontBody }
                 Switch {
                     id: allDaySwitch
                     Layout.columnSpan: 2
@@ -311,7 +312,7 @@ MailPopup {
                     }
                 }
 
-                Label { text: qsTr("Início"); color: LingmoUI.Theme.textColor }
+                Label { text: qsTr("Início"); color: LingmoUI.Theme.textColor; font.pointSize: LingmoUI.Units.fontBody }
                 CalendarDateField {
                     id: startField
                     Layout.fillWidth: true
@@ -335,7 +336,7 @@ MailPopup {
                 }
                 Item { visible: allDaySwitch.checked; implicitWidth: startTime.implicitWidth }
 
-                Label { text: qsTr("Fim"); color: LingmoUI.Theme.textColor }
+                Label { text: qsTr("Fim"); color: LingmoUI.Theme.textColor; font.pointSize: LingmoUI.Units.fontBody }
                 CalendarDateField {
                     id: endField
                     Layout.fillWidth: true
@@ -349,7 +350,7 @@ MailPopup {
                 }
                 Item { visible: allDaySwitch.checked; implicitWidth: endTime.implicitWidth }
 
-                Label { text: qsTr("Repetir"); color: LingmoUI.Theme.textColor }
+                Label { text: qsTr("Repetir"); color: LingmoUI.Theme.textColor; font.pointSize: LingmoUI.Units.fontBody }
                 ComboBox {
                     id: repeatBox
                     Layout.fillWidth: true
@@ -382,11 +383,12 @@ MailPopup {
                             height: 30
                             radius: LingmoUI.Theme.smallRadius
                             color: on ? LingmoUI.Theme.highlightColor : LingmoUI.Theme.alternateBackgroundColor
-                            Behavior on color { ColorAnimation { duration: 120 } }
+                            Behavior on color { ColorAnimation { duration: LingmoUI.Units.veryShortDuration } }
                             Accessible.role: Accessible.CheckBox
                             Accessible.checked: on
                             Accessible.name: Qt.locale().dayName((index + 1) % 7, Locale.LongFormat)
                             Label {
+                                font.pointSize: LingmoUI.Units.fontBody
                                 anchors.centerIn: parent
                                 text: Qt.locale().dayName((dayToggle.index + 1) % 7, Locale.NarrowFormat)
                                 color: dayToggle.on ? LingmoUI.Theme.highlightedTextColor : LingmoUI.Theme.textColor
@@ -412,7 +414,7 @@ MailPopup {
                     Layout.columnSpan: 2
                     visible: repeatBox.currentIndex > 0 && repeatBox.currentIndex < 5
                     spacing: LingmoUI.Units.smallSpacing
-                    Label { text: qsTr("A cada"); color: LingmoUI.Theme.textColor }
+                    Label { text: qsTr("A cada"); color: LingmoUI.Theme.textColor; font.pointSize: LingmoUI.Units.fontBody }
                     SpinBox {
                         id: intervalBox
                         from: 1
@@ -421,6 +423,7 @@ MailPopup {
                         onValueModified: dialog.repeatTouched = true
                     }
                     Label {
+                        font.pointSize: LingmoUI.Units.fontBody
                         text: [qsTr("dia(s)"), qsTr("dia(s)"), qsTr("semana(s)"), qsTr("mês(es)"), qsTr("ano(s)")][repeatBox.currentIndex] || ""
                         color: LingmoUI.Theme.textColor
                     }
@@ -450,13 +453,14 @@ MailPopup {
                         onValueModified: dialog.repeatTouched = true
                     }
                     Label {
+                        font.pointSize: LingmoUI.Units.fontBody
                         visible: endBox.currentIndex === 2
                         text: qsTr("vezes")
                         color: LingmoUI.Theme.textColor
                     }
                 }
 
-                Label { text: qsTr("Lembrete"); color: LingmoUI.Theme.textColor }
+                Label { text: qsTr("Lembrete"); color: LingmoUI.Theme.textColor; font.pointSize: LingmoUI.Units.fontBody }
                 ComboBox {
                     id: alarmBox
                     Layout.fillWidth: true
@@ -465,7 +469,7 @@ MailPopup {
                     textRole: "text"
                 }
 
-                Label { text: qsTr("Calendário"); color: LingmoUI.Theme.textColor }
+                Label { text: qsTr("Calendário"); color: LingmoUI.Theme.textColor; font.pointSize: LingmoUI.Units.fontBody }
                 ComboBox {
                     id: calendarBox
                     Layout.fillWidth: true
@@ -475,7 +479,7 @@ MailPopup {
                 }
             }
 
-            Label { text: qsTr("Notas"); color: LingmoUI.Theme.textColor }
+            Label { text: qsTr("Notas"); color: LingmoUI.Theme.textColor; font.pointSize: LingmoUI.Units.fontBody }
             TextArea {
                 id: notesField
                 Layout.fillWidth: true
@@ -490,13 +494,14 @@ MailPopup {
                 Layout.fillWidth: true
                 visible: !!(dialog.event && (dialog.event.organizer || (dialog.event.attendees || []).length))
                 spacing: 2
-                Label { text: qsTr("Convidados"); color: LingmoUI.Theme.textColor }
+                Label { text: qsTr("Convidados"); color: LingmoUI.Theme.textColor; font.pointSize: LingmoUI.Units.fontBody }
                 Label {
+                    font.pointSize: LingmoUI.Units.fontCaption
                     Layout.fillWidth: true
                     visible: !!(dialog.event && dialog.event.organizer)
                     text: dialog.event && dialog.event.organizer
                           ? qsTr("Organizador: %1").arg(dialog.event.organizer.name || dialog.event.organizer.email) : ""
-                    color: LingmoUI.Theme.disabledTextColor
+                    color: LingmoUI.Theme.secondaryTextColor
                     elide: Text.ElideRight
                     textFormat: Text.PlainText
                 }
@@ -516,6 +521,7 @@ MailPopup {
                                  : LingmoUI.Theme.greyColor
                         }
                         Label {
+                            font.pointSize: LingmoUI.Units.fontBody
                             Layout.fillWidth: true
                             text: modelData.name ? modelData.name + " <" + modelData.email + ">" : modelData.email
                             elide: Text.ElideRight
@@ -523,11 +529,12 @@ MailPopup {
                             textFormat: Text.PlainText
                         }
                         Label {
+                            font.pointSize: LingmoUI.Units.fontCaption
                             text: modelData.partstat === "ACCEPTED" ? qsTr("aceitou")
                                 : modelData.partstat === "DECLINED" ? qsTr("recusou")
                                 : modelData.partstat === "TENTATIVE" ? qsTr("talvez")
                                 : qsTr("sem resposta")
-                            color: LingmoUI.Theme.disabledTextColor
+                            color: LingmoUI.Theme.secondaryTextColor
                         }
                     }
                 }
@@ -536,23 +543,21 @@ MailPopup {
     }
 
     buttons: [
-        ActionButton {
+        LingmoUI.ActionButton {
             visible: dialog.editing && !dialog.readOnly
             text: qsTr("Excluir")
             destructive: true
             onClicked: dialog.remove()
         },
         Item { Layout.fillWidth: true },
-        Spinner {
-            Layout.preferredWidth: 22
-            Layout.preferredHeight: 22
-            running: dialog.saving
+        LingmoUI.Spinner {
+                        running: dialog.saving
         },
-        ActionButton {
+        LingmoUI.ActionButton {
             text: dialog.readOnly ? qsTr("Fechar") : qsTr("Cancelar")
             onClicked: dialog.close()
         },
-        ActionButton {
+        LingmoUI.ActionButton {
             id: saveButton
             visible: !dialog.readOnly
             primary: true

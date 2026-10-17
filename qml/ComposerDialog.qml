@@ -106,7 +106,8 @@ MailPopup {
         anchors.fill: parent
         spacing: LingmoUI.Units.largeSpacing
 
-        Banner {
+        LingmoUI.Banner {
+            type: LingmoUI.Banner.Error
             Layout.fillWidth: true
             text: dialog.errorText
             onClosed: dialog.errorText = ""
@@ -127,8 +128,9 @@ MailPopup {
                 rowSpacing: LingmoUI.Units.smallSpacing
                 enabled: !Mail.sending
 
-                Label { text: qsTr("De:"); color: LingmoUI.Theme.disabledTextColor }
+                Label { text: qsTr("De:"); color: LingmoUI.Theme.secondaryTextColor; font.pointSize: LingmoUI.Units.fontBody }
                 Label {
+                    font.pointSize: LingmoUI.Units.fontBody
                     Layout.fillWidth: true
                     text: {
                         const a = Mail.currentAccount
@@ -139,7 +141,7 @@ MailPopup {
                     textFormat: Text.PlainText
                 }
 
-                Label { text: qsTr("Para:"); color: LingmoUI.Theme.disabledTextColor }
+                Label { text: qsTr("Para:"); color: LingmoUI.Theme.secondaryTextColor; font.pointSize: LingmoUI.Units.fontBody }
                 RowLayout {
                     Layout.fillWidth: true
                     RecipientField {
@@ -147,7 +149,7 @@ MailPopup {
                         Layout.fillWidth: true
                         placeholderText: qsTr("nome@exemplo.com, outra@exemplo.com")
                     }
-                    ActionButton {
+                    LingmoUI.ActionButton {
                         visible: !dialog.showCc
                         text: qsTr("Cc")
                         onClicked: {
@@ -157,14 +159,14 @@ MailPopup {
                     }
                 }
 
-                Label { visible: dialog.showCc; text: qsTr("Cc:"); color: LingmoUI.Theme.disabledTextColor }
+                Label { visible: dialog.showCc; text: qsTr("Cc:"); color: LingmoUI.Theme.secondaryTextColor; font.pointSize: LingmoUI.Units.fontBody }
                 RecipientField {
                     id: ccField
                     visible: dialog.showCc
                     Layout.fillWidth: true
                 }
 
-                Label { text: qsTr("Assunto:"); color: LingmoUI.Theme.disabledTextColor }
+                Label { text: qsTr("Assunto:"); color: LingmoUI.Theme.secondaryTextColor; font.pointSize: LingmoUI.Units.fontBody }
                 TextField {
                     id: subjectField
                     Layout.fillWidth: true
@@ -204,30 +206,29 @@ MailPopup {
             Layout.fillWidth: true
             visible: subjectField.text.match(/^fwd?:/i) !== null && !dialog.inReplyTo
             text: qsTr("Os anexos da mensagem original não são encaminhados.")
-            color: LingmoUI.Theme.disabledTextColor
-            font.pointSize: LingmoUI.Theme.fontSize * 0.9
+            color: LingmoUI.Theme.secondaryTextColor
+            font.pointSize: LingmoUI.Units.fontCaption
             wrapMode: Text.Wrap
         }
     }
 
     buttons: [
-        Spinner {
-            Layout.preferredWidth: 22
-            Layout.preferredHeight: 22
-            running: Mail.sending
+        LingmoUI.Spinner {
+                        running: Mail.sending
         },
         Label {
+            font.pointSize: LingmoUI.Units.fontCaption
             Layout.fillWidth: true
             text: Mail.sending ? qsTr("Enviando…") : qsTr("Ctrl+Enter para enviar")
-            color: LingmoUI.Theme.disabledTextColor
+            color: LingmoUI.Theme.secondaryTextColor
             elide: Text.ElideRight
         },
-        ActionButton {
+        LingmoUI.ActionButton {
             text: qsTr("Descartar")
             enabled: !Mail.sending
             onClicked: dialog.discard()
         },
-        ActionButton {
+        LingmoUI.ActionButton {
             primary: true
             text: qsTr("Enviar")
             enabled: !Mail.sending && toField.text.trim().length > 0

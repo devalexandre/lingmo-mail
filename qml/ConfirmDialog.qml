@@ -36,20 +36,21 @@ MailPopup {
     closePolicy: Popup.CloseOnEscape | Popup.CloseOnPressOutside
 
     Label {
+        font.pointSize: LingmoUI.Units.fontCaption
         width: parent.width
         text: control.text
-        color: LingmoUI.Theme.disabledTextColor
+        color: LingmoUI.Theme.secondaryTextColor
         wrapMode: Text.Wrap
         textFormat: Text.PlainText
     }
 
     buttons: [
         Item { Layout.fillWidth: true },
-        ActionButton {
+        LingmoUI.ActionButton {
             text: control.rejectText
             onClicked: control.close()
         },
-        ActionButton {
+        LingmoUI.ActionButton {
             text: control.acceptText
             primary: true
             destructive: control.destructive

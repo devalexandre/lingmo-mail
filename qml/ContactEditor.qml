@@ -65,15 +65,16 @@ MailPopup {
         width: parent.width
         spacing: LingmoUI.Units.largeSpacing
 
-        Banner {
+        LingmoUI.Banner {
+            type: LingmoUI.Banner.Error
             Layout.fillWidth: true
             text: dialog.errorText
             onClosed: dialog.errorText = ""
         }
 
-        Banner {
+        LingmoUI.Banner {
             Layout.fillWidth: true
-            error: false
+            type: LingmoUI.Banner.Info
             closable: false
             text: dialog.wasCollected ? qsTr("Coletado automaticamente de uma mensagem enviada. Ao salvar, vira um contato seu.") : ""
         }
@@ -92,7 +93,7 @@ MailPopup {
                 columnSpacing: LingmoUI.Units.largeSpacing
                 rowSpacing: LingmoUI.Units.smallSpacing
 
-                Label { text: qsTr("Nome:"); color: LingmoUI.Theme.disabledTextColor }
+                Label { text: qsTr("Nome:"); color: LingmoUI.Theme.secondaryTextColor; font.pointSize: LingmoUI.Units.fontBody }
                 TextField {
                     id: nameField
                     Layout.fillWidth: true
@@ -100,7 +101,7 @@ MailPopup {
                     selectByMouse: true
                     validator: RegularExpressionValidator { regularExpression: /[^\r\n]*/ }
                 }
-                Label { text: qsTr("E-mails:"); color: LingmoUI.Theme.disabledTextColor }
+                Label { text: qsTr("E-mails:"); color: LingmoUI.Theme.secondaryTextColor; font.pointSize: LingmoUI.Units.fontBody }
                 TextField {
                     id: emailsField
                     Layout.fillWidth: true
@@ -109,7 +110,7 @@ MailPopup {
                     inputMethodHints: Qt.ImhEmailCharactersOnly | Qt.ImhNoAutoUppercase
                     validator: RegularExpressionValidator { regularExpression: /[^\r\n]*/ }
                 }
-                Label { text: qsTr("Telefone:"); color: LingmoUI.Theme.disabledTextColor }
+                Label { text: qsTr("Telefone:"); color: LingmoUI.Theme.secondaryTextColor; font.pointSize: LingmoUI.Units.fontBody }
                 TextField {
                     id: phoneField
                     Layout.fillWidth: true
@@ -119,10 +120,11 @@ MailPopup {
                     validator: RegularExpressionValidator { regularExpression: /[0-9+()\-. ]*/ }
                 }
                 Label {
+                    font.pointSize: LingmoUI.Units.fontCaption
                     Layout.alignment: Qt.AlignTop
                     Layout.topMargin: LingmoUI.Units.smallSpacing
                     text: qsTr("Notas:")
-                    color: LingmoUI.Theme.disabledTextColor
+                    color: LingmoUI.Theme.secondaryTextColor
                 }
                 ScrollView {
                     Layout.fillWidth: true
@@ -142,11 +144,11 @@ MailPopup {
 
     buttons: [
         Item { Layout.fillWidth: true },
-        ActionButton {
+        LingmoUI.ActionButton {
             text: qsTr("Cancelar")
             onClicked: dialog.close()
         },
-        ActionButton {
+        LingmoUI.ActionButton {
             primary: true
             text: qsTr("Salvar")
             enabled: nameField.text.trim() || emailsField.text.trim()

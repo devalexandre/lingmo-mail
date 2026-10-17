@@ -37,8 +37,7 @@ Item {
     readonly property var locale: Qt.locale()
     readonly property int hourHeight: Math.max(44, LingmoUI.Units.fontMetrics.height * 3)
     readonly property int gutter: LingmoUI.Units.fontMetrics.advanceWidth("00:00") + LingmoUI.Units.largeSpacing
-    readonly property color lineColor: Qt.rgba(LingmoUI.Theme.textColor.r, LingmoUI.Theme.textColor.g,
-                                               LingmoUI.Theme.textColor.b, 0.08)
+    readonly property color lineColor: LingmoUI.Theme.dividerColor
     property date now: new Date()
 
     function scrollToMorning() {
@@ -83,23 +82,23 @@ Item {
                         anchors.centerIn: parent
                         spacing: LingmoUI.Units.smallSpacing
                         Label {
+                            font.pointSize: LingmoUI.Units.fontBody
                             text: Util.capitalize(view.locale.toString(head.day, view.days === 1 ? "dddd" : "ddd"))
-                            color: head.isToday ? LingmoUI.Theme.highlightColor : LingmoUI.Theme.disabledTextColor
+                            color: head.isToday ? LingmoUI.Theme.highlightColor : LingmoUI.Theme.secondaryTextColor
                         }
                         Rectangle {
                             implicitWidth: Math.max(dayNum.implicitWidth + 10, implicitHeight)
                             implicitHeight: LingmoUI.Units.fontMetrics.height + 6
                             radius: implicitHeight / 2
                             color: head.isToday ? LingmoUI.Theme.highlightColor
-                                 : headArea.containsMouse ? Qt.rgba(LingmoUI.Theme.textColor.r, LingmoUI.Theme.textColor.g,
-                                                                    LingmoUI.Theme.textColor.b, 0.1) : "transparent"
-                            Behavior on color { ColorAnimation { duration: 120 } }
+                                 : headArea.containsMouse ? LingmoUI.Theme.hoverColor : "transparent"
+                            Behavior on color { ColorAnimation { duration: LingmoUI.Units.veryShortDuration } }
                             Label {
                                 id: dayNum
                                 anchors.centerIn: parent
                                 text: head.day.getDate()
                                 font.bold: true
-                                font.pointSize: LingmoUI.Theme.fontSize * 1.1
+                                font.pointSize: LingmoUI.Units.fontBody
                                 color: head.isToday ? LingmoUI.Theme.highlightedTextColor : LingmoUI.Theme.textColor
                             }
                         }
@@ -129,8 +128,8 @@ Item {
                 rightPadding: LingmoUI.Units.smallSpacing
                 horizontalAlignment: Text.AlignRight
                 text: qsTr("dia todo")
-                color: LingmoUI.Theme.disabledTextColor
-                font.pointSize: LingmoUI.Theme.fontSize * 0.8
+                color: LingmoUI.Theme.secondaryTextColor
+                font.pointSize: LingmoUI.Units.fontCaption
             }
             Repeater {
                 model: view.days
@@ -169,8 +168,8 @@ Item {
                         Label {
                             visible: strip.items.length > 4
                             text: qsTr("+%1 mais").arg(strip.items.length - 4)
-                            color: LingmoUI.Theme.disabledTextColor
-                            font.pointSize: LingmoUI.Theme.fontSize * 0.85
+                            color: LingmoUI.Theme.secondaryTextColor
+                            font.pointSize: LingmoUI.Units.fontCaption
                         }
                     }
                 }
@@ -209,8 +208,8 @@ Item {
                             horizontalAlignment: Text.AlignRight
                             visible: index > 0
                             text: (index < 10 ? "0" : "") + index + ":00"
-                            color: LingmoUI.Theme.disabledTextColor
-                            font.pointSize: LingmoUI.Theme.fontSize * 0.8
+                            color: LingmoUI.Theme.secondaryTextColor
+                            font.pointSize: LingmoUI.Units.fontCaption
                         }
                         Rectangle {
                             x: view.gutter
@@ -266,7 +265,7 @@ Item {
                                     color: Qt.rgba(tone.r, tone.g, tone.b,
                                                    (blockArea.containsMouse ? 0.32 : 0.22) * (LingmoUI.Theme.darkMode ? 1.4 : 1))
                                     opacity: event.status === "TENTATIVE" ? 0.7 : 1
-                                    Behavior on color { ColorAnimation { duration: 120 } }
+                                    Behavior on color { ColorAnimation { duration: LingmoUI.Units.veryShortDuration } }
 
                                     Rectangle {
                                         width: 3
@@ -283,7 +282,7 @@ Item {
                                             width: parent.width
                                             text: block.event.title
                                             font.bold: true
-                                            font.pointSize: LingmoUI.Theme.fontSize * 0.85
+                                            font.pointSize: LingmoUI.Units.fontCaption
                                             color: LingmoUI.Theme.textColor
                                             elide: Text.ElideRight
                                             textFormat: Text.PlainText
@@ -294,8 +293,8 @@ Item {
                                             text: Util.hhmm(Util.parse(block.event.start)) + " – "
                                                   + Util.hhmm(Util.parse(block.event.end))
                                                   + (block.event.location ? " · " + block.event.location : "")
-                                            font.pointSize: LingmoUI.Theme.fontSize * 0.8
-                                            color: LingmoUI.Theme.disabledTextColor
+                                            font.pointSize: LingmoUI.Units.fontCaption
+                                            color: LingmoUI.Theme.secondaryTextColor
                                             elide: Text.ElideRight
                                             textFormat: Text.PlainText
                                         }

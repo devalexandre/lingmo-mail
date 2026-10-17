@@ -48,17 +48,18 @@ Loader {
                 Layout.fillWidth: true
                 horizontalAlignment: Text.AlignHCenter
                 text: control.title
-                font.pointSize: LingmoUI.Theme.fontSize * 1.5
+                font.pointSize: LingmoUI.Units.fontHeading
                 font.bold: true
                 color: LingmoUI.Theme.textColor
             }
             Label {
+                font.pointSize: LingmoUI.Units.fontCaption
                 Layout.fillWidth: true
                 horizontalAlignment: Text.AlignHCenter
                 wrapMode: Text.Wrap
                 text: control.status === Loader.Loading ? qsTr("Carregando…")
                                                        : qsTr("Esta seção ainda não está disponível nesta versão.")
-                color: LingmoUI.Theme.disabledTextColor
+                color: LingmoUI.Theme.secondaryTextColor
             }
         }
     }

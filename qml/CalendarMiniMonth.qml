@@ -47,6 +47,7 @@ ColumnLayout {
         Layout.fillWidth: true
         spacing: 0
         Label {
+            font.pointSize: LingmoUI.Units.fontBody
             Layout.fillWidth: true
             Layout.leftMargin: LingmoUI.Units.smallSpacing
             text: Util.capitalize(control.locale.standaloneMonthName(control.shown.getMonth(), Locale.LongFormat))
@@ -55,18 +56,16 @@ ColumnLayout {
             color: LingmoUI.Theme.textColor
             elide: Text.ElideRight
         }
-        CalendarIconButton {
+        LingmoUI.IconButton {
             iconName: "go-previous"
             tipText: qsTr("Mês anterior")
-            implicitWidth: 26
-            implicitHeight: 26
+            size: 26
             onClicked: control.shown = Util.addMonths(control.shown, -1)
         }
-        CalendarIconButton {
+        LingmoUI.IconButton {
             iconName: "go-next"
             tipText: qsTr("Próximo mês")
-            implicitWidth: 26
-            implicitHeight: 26
+            size: 26
             onClicked: control.shown = Util.addMonths(control.shown, 1)
         }
     }
@@ -84,8 +83,8 @@ ColumnLayout {
                 Layout.fillWidth: true
                 horizontalAlignment: Text.AlignHCenter
                 text: control.locale.dayName((Util.firstWeekday(control.locale) + index) % 7, Locale.NarrowFormat)
-                color: LingmoUI.Theme.disabledTextColor
-                font.pointSize: LingmoUI.Theme.fontSize * 0.85
+                color: LingmoUI.Theme.secondaryTextColor
+                font.pointSize: LingmoUI.Units.fontCaption
             }
         }
 
@@ -108,20 +107,19 @@ ColumnLayout {
                     height: 24
                     radius: 12
                     color: cell.isSelected ? LingmoUI.Theme.highlightColor
-                         : area.containsMouse ? Qt.rgba(LingmoUI.Theme.textColor.r, LingmoUI.Theme.textColor.g,
-                                                        LingmoUI.Theme.textColor.b, 0.08)
+                         : area.containsMouse ? LingmoUI.Theme.hoverColor
                          : "transparent"
                     border.width: cell.isToday && !cell.isSelected ? 1 : 0
                     border.color: LingmoUI.Theme.highlightColor
-                    Behavior on color { ColorAnimation { duration: 120 } }
+                    Behavior on color { ColorAnimation { duration: LingmoUI.Units.veryShortDuration } }
 
                     Label {
                         anchors.centerIn: parent
                         text: cell.day.getDate()
-                        font.pointSize: LingmoUI.Theme.fontSize * 0.9
+                        font.pointSize: LingmoUI.Units.fontCaption
                         font.bold: cell.isToday
                         color: cell.isSelected ? LingmoUI.Theme.highlightedTextColor
-                             : cell.inMonth ? LingmoUI.Theme.textColor : LingmoUI.Theme.disabledTextColor
+                             : cell.inMonth ? LingmoUI.Theme.textColor : LingmoUI.Theme.secondaryTextColor
                     }
                 }
                 Rectangle {

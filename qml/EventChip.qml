@@ -41,7 +41,7 @@ Rectangle {
     color: filled ? Qt.rgba(tone.r, tone.g, tone.b, area.containsMouse ? 1.0 : 0.85)
                   : area.containsMouse ? Qt.rgba(tone.r, tone.g, tone.b, 0.18) : "transparent"
     opacity: tentative ? 0.7 : 1
-    Behavior on color { ColorAnimation { duration: 120 } }
+    Behavior on color { ColorAnimation { duration: LingmoUI.Units.veryShortDuration } }
 
     Accessible.role: Accessible.Button
     Accessible.name: event.title || ""
@@ -62,15 +62,15 @@ Rectangle {
         Label {
             visible: chip.showTime && !chip.filled
             text: Util.hhmm(Util.parse(chip.event.start))
-            color: LingmoUI.Theme.disabledTextColor
-            font.pointSize: LingmoUI.Theme.fontSize * 0.85
+            color: LingmoUI.Theme.secondaryTextColor
+            font.pointSize: LingmoUI.Units.fontCaption
         }
         Label {
             Layout.fillWidth: true
             text: chip.event.title || ""
             elide: Text.ElideRight
             color: chip.filled ? LingmoUI.Theme.highlightedTextColor : LingmoUI.Theme.textColor
-            font.pointSize: LingmoUI.Theme.fontSize * 0.85
+            font.pointSize: LingmoUI.Units.fontCaption
             textFormat: Text.PlainText
         }
     }

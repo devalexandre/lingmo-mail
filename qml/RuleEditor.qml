@@ -130,7 +130,8 @@ MailPopup {
         anchors.fill: parent
         spacing: LingmoUI.Units.largeSpacing
 
-        Banner {
+        LingmoUI.Banner {
+            type: LingmoUI.Banner.Error
             Layout.fillWidth: true
             text: dialog.errorText
             onClosed: dialog.errorText = ""
@@ -162,7 +163,7 @@ MailPopup {
                         anchors.margins: LingmoUI.Units.largeSpacing
                         columns: 2
                         columnSpacing: LingmoUI.Units.largeSpacing
-                        Label { text: qsTr("Nome:"); color: LingmoUI.Theme.disabledTextColor }
+                        Label { text: qsTr("Nome:"); color: LingmoUI.Theme.secondaryTextColor; font.pointSize: LingmoUI.Units.fontBody }
                         TextField {
                             id: nameField
                             Layout.fillWidth: true
@@ -171,7 +172,7 @@ MailPopup {
                             placeholderText: qsTr("Ex.: Boletos do banco")
                             validator: RegularExpressionValidator { regularExpression: /[^\r\n]*/ }
                         }
-                        Label { text: qsTr("Aplicar se:"); color: LingmoUI.Theme.disabledTextColor }
+                        Label { text: qsTr("Aplicar se:"); color: LingmoUI.Theme.secondaryTextColor; font.pointSize: LingmoUI.Units.fontBody }
                         ComboBox {
                             id: matchBox
                             Layout.fillWidth: true
@@ -181,6 +182,7 @@ MailPopup {
                 }
 
                 Label {
+                    font.pointSize: LingmoUI.Units.fontBody
                     text: qsTr("Condições")
                     font.bold: true
                     color: LingmoUI.Theme.textColor
@@ -215,7 +217,7 @@ MailPopup {
                             onTextEdited: dialog.conditions[condRow.index].value = text
                         }
                         Item { Layout.fillWidth: true; visible: condRow.modelData.field === "attachment" }
-                        IconButton {
+                        LingmoUI.IconButton {
                             iconName: "edit-delete"
                             tipText: qsTr("Remover condição")
                             enabled: dialog.conditions.length > 1
@@ -228,13 +230,14 @@ MailPopup {
                     }
                 }
 
-                ActionButton {
+                LingmoUI.ActionButton {
                     text: qsTr("Adicionar condição")
                     enabled: dialog.conditions.length < 10
                     onClicked: dialog.conditions = dialog.conditions.concat([{ field: "subject", value: "" }])
                 }
 
                 Label {
+                    font.pointSize: LingmoUI.Units.fontBody
                     Layout.topMargin: LingmoUI.Units.smallSpacing
                     text: qsTr("Ações")
                     font.bold: true
@@ -275,7 +278,7 @@ MailPopup {
                             onActivated: dialog.setAction(actRow.index, "folder", currentValue)
                         }
                         Item { Layout.fillWidth: true; visible: actRow.modelData.type !== "move" }
-                        IconButton {
+                        LingmoUI.IconButton {
                             iconName: "edit-delete"
                             tipText: qsTr("Remover ação")
                             enabled: dialog.actions.length > 1
@@ -288,7 +291,7 @@ MailPopup {
                     }
                 }
 
-                ActionButton {
+                LingmoUI.ActionButton {
                     text: qsTr("Adicionar ação")
                     enabled: dialog.actions.length < 4
                     onClicked: {
@@ -302,8 +305,8 @@ MailPopup {
                 Label {
                     Layout.fillWidth: true
                     text: qsTr("As regras valem para mensagens novas na caixa de entrada desta conta, na ordem da lista. Mover ou apagar encerra a verificação da mensagem.")
-                    color: LingmoUI.Theme.disabledTextColor
-                    font.pointSize: LingmoUI.Theme.fontSize * 0.9
+                    color: LingmoUI.Theme.secondaryTextColor
+                    font.pointSize: LingmoUI.Units.fontCaption
                     wrapMode: Text.Wrap
                 }
             }
@@ -312,11 +315,11 @@ MailPopup {
 
     buttons: [
         Item { Layout.fillWidth: true },
-        ActionButton {
+        LingmoUI.ActionButton {
             text: qsTr("Cancelar")
             onClicked: dialog.close()
         },
-        ActionButton {
+        LingmoUI.ActionButton {
             primary: true
             text: qsTr("Salvar")
             onClicked: dialog.submit()

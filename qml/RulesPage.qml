@@ -75,14 +75,15 @@ Item {
                 spacing: 0
                 Label {
                     text: qsTr("Regras")
-                    font.pointSize: LingmoUI.Theme.fontSize * 1.5
+                    font.pointSize: LingmoUI.Units.fontHeading
                     font.bold: true
                     color: LingmoUI.Theme.textColor
                 }
                 Label {
+                    font.pointSize: LingmoUI.Units.fontCaption
                     Layout.fillWidth: true
                     text: qsTr("Organizam automaticamente as mensagens novas da caixa de entrada.")
-                    color: LingmoUI.Theme.disabledTextColor
+                    color: LingmoUI.Theme.secondaryTextColor
                     wrapMode: Text.Wrap
                 }
             }
@@ -101,7 +102,8 @@ Item {
             }
         }
 
-        Banner {
+        LingmoUI.Banner {
+            type: LingmoUI.Banner.Error
             Layout.fillWidth: true
             text: control.errorText
             onClosed: control.errorText = ""
@@ -112,19 +114,18 @@ Item {
             spacing: LingmoUI.Units.largeSpacing
             visible: Mail.currentIsImap
 
-            ActionButton {
+            LingmoUI.ActionButton {
                 primary: true
                 text: qsTr("Nova regra")
                 onClicked: control.editRequested({})
             }
-            ActionButton {
+            LingmoUI.ActionButton {
                 text: Mail.applyingRules ? qsTr("Aplicando…") : qsTr("Aplicar agora às mensagens existentes")
                 enabled: !Mail.applyingRules && Mail.rules.some(r => r.enabled)
                 onClicked: Mail.applyRulesNow()
             }
-            Spinner {
-                Layout.preferredWidth: 20
-                Layout.preferredHeight: 20
+            LingmoUI.Spinner {
+                size: 20
                 running: Mail.applyingRules
             }
             Item { Layout.fillWidth: true }
@@ -142,15 +143,13 @@ Item {
 
             LingmoUI.WheelHandler { target: list }
 
-            delegate: LingmoUI.RoundedRect {
+            delegate: LingmoUI.Card {
                 id: card
                 required property var modelData
                 required property int index
                 width: ListView.view.width
                 implicitHeight: cardRow.implicitHeight + LingmoUI.Units.largeSpacing * 2
-                radius: LingmoUI.Theme.mediumRadius
-                color: hover.hovered ? LingmoUI.Theme.alternateBackgroundColor : LingmoUI.Theme.secondBackgroundColor
-                HoverHandler { id: hover }
+                hoverEnabled: true
 
                 RowLayout {
                     id: cardRow
@@ -174,6 +173,7 @@ Item {
                         Layout.fillWidth: true
                         spacing: 2
                         Label {
+                            font.pointSize: LingmoUI.Units.fontBody
                             Layout.fillWidth: true
                             text: card.modelData.name
                             font.bold: true
@@ -182,9 +182,10 @@ Item {
                             textFormat: Text.PlainText
                         }
                         Label {
+                            font.pointSize: LingmoUI.Units.fontCaption
                             Layout.fillWidth: true
                             text: control.describe(card.modelData)
-                            color: LingmoUI.Theme.disabledTextColor
+                            color: LingmoUI.Theme.secondaryTextColor
                             wrapMode: Text.Wrap
                             maximumLineCount: 3
                             elide: Text.ElideRight
@@ -192,24 +193,24 @@ Item {
                         }
                     }
 
-                    IconButton {
+                    LingmoUI.IconButton {
                         iconName: "go-up"
                         tipText: qsTr("Subir")
                         enabled: card.index > 0
                         onClicked: control.saveWith(list => list.splice(card.index - 1, 0, list.splice(card.index, 1)[0]))
                     }
-                    IconButton {
+                    LingmoUI.IconButton {
                         iconName: "go-down"
                         tipText: qsTr("Descer")
                         enabled: card.index < list.count - 1
                         onClicked: control.saveWith(list => list.splice(card.index + 1, 0, list.splice(card.index, 1)[0]))
                     }
-                    IconButton {
+                    LingmoUI.IconButton {
                         iconName: "document-edit"
                         tipText: qsTr("Editar")
                         onClicked: control.editRequested(card.modelData)
                     }
-                    IconButton {
+                    LingmoUI.IconButton {
                         iconName: "edit-delete"
                         tipText: qsTr("Apagar regra")
                         onClicked: {
@@ -222,23 +223,17 @@ Item {
                 }
             }
 
-            ColumnLayout {
+            LingmoUI.EmptyState {
                 anchors.centerIn: parent
                 width: Math.min(parent.width - 40, 420)
                 visible: list.count === 0
-                spacing: LingmoUI.Units.largeSpacing
-
-                Label {
-                    Layout.fillWidth: true
-                    horizontalAlignment: Text.AlignHCenter
-                    wrapMode: Text.Wrap
-                    color: LingmoUI.Theme.disabledTextColor
-                    font.pointSize: LingmoUI.Theme.fontSize * 1.1
-                    text: Mail.currentAccountId === "" ? qsTr("Adicione uma conta para criar regras")
-                        : !Mail.currentIsImap ? qsTr("Regras precisam de uma conta IMAP: contas POP3 só baixam a caixa de entrada.")
-                        : !Mail.rulesLoaded ? qsTr("Carregando regras…")
-                        : qsTr("Nenhuma regra ainda. Crie uma aqui ou, ao ler uma mensagem, use “Criar regra a partir desta mensagem”.")
-                }
+                busy: Mail.currentIsImap && !Mail.rulesLoaded
+                iconName: "view-filter"
+                iconSize: LingmoUI.Units.iconSizes.large
+                text: Mail.currentAccountId === "" ? qsTr("Adicione uma conta para criar regras")
+                    : !Mail.currentIsImap ? qsTr("Regras precisam de uma conta IMAP: contas POP3 só baixam a caixa de entrada.")
+                    : !Mail.rulesLoaded ? qsTr("Carregando regras…")
+                    : qsTr("Nenhuma regra ainda. Crie uma aqui ou, ao ler uma mensagem, use “Criar regra a partir desta mensagem”.")
             }
         }
     }

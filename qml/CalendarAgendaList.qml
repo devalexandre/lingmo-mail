@@ -70,14 +70,13 @@ ListView {
 
     LingmoUI.WheelHandler { target: list }
 
-    Label {
+    LingmoUI.EmptyState {
         anchors.centerIn: parent
         width: parent.width - LingmoUI.Units.largeSpacing * 2
         visible: list.count === 0
-        horizontalAlignment: Text.AlignHCenter
-        wrapMode: Text.Wrap
+        iconName: list.compact ? "" : "view-calendar"
+        iconSize: LingmoUI.Units.iconSizes.large
         text: list.emptyText
-        color: LingmoUI.Theme.disabledTextColor
     }
 
     delegate: Item {
@@ -89,6 +88,7 @@ ListView {
 
         Label {
             id: headerLabel
+            font.pointSize: LingmoUI.Units.fontBody
             visible: row.modelData.header
             anchors.bottom: parent.bottom
             anchors.bottomMargin: 2
@@ -140,13 +140,14 @@ ListView {
                             return qsTr("dia")
                         return Util.hhmm(s)
                     }
-                    color: LingmoUI.Theme.disabledTextColor
-                    font.pointSize: LingmoUI.Theme.fontSize * 0.9
+                    color: LingmoUI.Theme.secondaryTextColor
+                    font.pointSize: LingmoUI.Units.fontCaption
                 }
                 ColumnLayout {
                     Layout.fillWidth: true
                     spacing: 0
                     Label {
+                        font.pointSize: LingmoUI.Units.fontBody
                         Layout.fillWidth: true
                         text: card.event.title || ""
                         elide: Text.ElideRight
@@ -168,8 +169,8 @@ ListView {
                             return parts.join(" · ")
                         }
                         elide: Text.ElideRight
-                        color: LingmoUI.Theme.disabledTextColor
-                        font.pointSize: LingmoUI.Theme.fontSize * 0.85
+                        color: LingmoUI.Theme.secondaryTextColor
+                        font.pointSize: LingmoUI.Units.fontCaption
                         textFormat: Text.PlainText
                     }
                 }

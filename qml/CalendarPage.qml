@@ -128,11 +128,9 @@ Item {
         spacing: LingmoUI.Units.largeSpacing
 
         // ---------- Side panel
-        LingmoUI.RoundedRect {
+        LingmoUI.Card {
             Layout.preferredWidth: 270
             Layout.fillHeight: true
-            radius: LingmoUI.Theme.mediumRadius
-            color: LingmoUI.Theme.secondBackgroundColor
 
             Flickable {
                 id: side
@@ -149,7 +147,7 @@ Item {
                     width: side.width
                     spacing: LingmoUI.Units.smallSpacing
 
-                    ActionButton {
+                    LingmoUI.ActionButton {
                         Layout.fillWidth: true
                         primary: true
                         text: qsTr("Novo evento")
@@ -168,21 +166,21 @@ Item {
                         Layout.fillWidth: true
                         Layout.topMargin: LingmoUI.Units.smallSpacing
                         implicitHeight: 1
-                        color: Qt.rgba(LingmoUI.Theme.textColor.r, LingmoUI.Theme.textColor.g, LingmoUI.Theme.textColor.b, 0.08)
+                        color: LingmoUI.Theme.dividerColor
                     }
 
                     RowLayout {
                         Layout.fillWidth: true
                         Label {
+                            font.pointSize: LingmoUI.Units.fontBody
                             Layout.fillWidth: true
                             text: qsTr("Calendários")
                             font.bold: true
                             color: LingmoUI.Theme.textColor
                         }
-                        CalendarIconButton {
+                        LingmoUI.IconButton {
                             id: addButton
-                            implicitWidth: 26
-                            implicitHeight: 26
+                            size: 26
                             iconName: "list-add"
                             tipText: qsTr("Adicionar")
                             onClicked: addMenu.popup(addButton, 0, addButton.height)
@@ -217,10 +215,11 @@ Item {
                         Layout.fillWidth: true
                         Layout.topMargin: LingmoUI.Units.smallSpacing
                         implicitHeight: 1
-                        color: Qt.rgba(LingmoUI.Theme.textColor.r, LingmoUI.Theme.textColor.g, LingmoUI.Theme.textColor.b, 0.08)
+                        color: LingmoUI.Theme.dividerColor
                     }
 
                     Label {
+                        font.pointSize: LingmoUI.Units.fontBody
                         text: qsTr("Próximos")
                         font.bold: true
                         color: LingmoUI.Theme.textColor
@@ -247,7 +246,8 @@ Item {
             Layout.fillHeight: true
             spacing: LingmoUI.Units.largeSpacing
 
-            Banner {
+            LingmoUI.Banner {
+                type: LingmoUI.Banner.Error
                 Layout.fillWidth: true
                 text: Calendar.error
                 onClosed: Calendar.clearError()
@@ -257,16 +257,16 @@ Item {
                 Layout.fillWidth: true
                 spacing: LingmoUI.Units.smallSpacing
 
-                ActionButton {
+                LingmoUI.ActionButton {
                     text: qsTr("Hoje")
                     onClicked: page.cursor = Util.dayOnly(new Date())
                 }
-                CalendarIconButton {
+                LingmoUI.IconButton {
                     iconName: "go-previous"
                     tipText: qsTr("Anterior")
                     onClicked: page.move(-1)
                 }
-                CalendarIconButton {
+                LingmoUI.IconButton {
                     iconName: "go-next"
                     tipText: qsTr("Próximo")
                     onClicked: page.move(1)
@@ -275,25 +275,25 @@ Item {
                     Layout.fillWidth: true
                     Layout.leftMargin: LingmoUI.Units.smallSpacing
                     text: Util.capitalize(page.title())
-                    font.pointSize: LingmoUI.Theme.fontSize * 1.4
+                    font.pointSize: LingmoUI.Units.fontHeading
                     font.bold: true
                     color: LingmoUI.Theme.textColor
                     elide: Text.ElideRight
                 }
 
                 Label {
+                    font.pointSize: LingmoUI.Units.fontCaption
                     Layout.maximumWidth: 260
                     elide: Text.ElideRight
-                    color: LingmoUI.Theme.disabledTextColor
+                    color: LingmoUI.Theme.secondaryTextColor
                     text: Calendar.syncing ? qsTr("Sincronizando…") : Calendar.status
                     visible: text.length > 0
                 }
-                Spinner {
-                    Layout.preferredWidth: 16
-                    Layout.preferredHeight: 16
+                LingmoUI.Spinner {
+                    size: 16
                     running: Calendar.busy || Calendar.syncing
                 }
-                CalendarIconButton {
+                LingmoUI.IconButton {
                     visible: Calendar.accounts.length > 0
                     enabled: !Calendar.syncing
                     iconName: "view-refresh"
@@ -304,56 +304,20 @@ Item {
                 }
 
                 // View switch
-                Rectangle {
-                    implicitWidth: viewRow.implicitWidth + 4
-                    implicitHeight: 32
-                    radius: LingmoUI.Theme.smallRadius
-                    color: LingmoUI.Theme.alternateBackgroundColor
-
-                    Row {
-                        id: viewRow
-                        anchors.centerIn: parent
-                        spacing: 2
-                        Repeater {
-                            model: [
-                                { key: "day", text: qsTr("Dia") },
-                                { key: "week", text: qsTr("Semana") },
-                                { key: "month", text: qsTr("Mês") },
-                                { key: "agenda", text: qsTr("Agenda") }
-                            ]
-                            delegate: Rectangle {
-                                id: seg
-                                required property var modelData
-                                readonly property bool active: page.view === modelData.key
-                                width: segLabel.implicitWidth + LingmoUI.Units.largeSpacing * 1.5
-                                height: 28
-                                radius: LingmoUI.Theme.smallRadius - 2
-                                color: active ? LingmoUI.Theme.highlightColor
-                                     : segHover.hovered ? Qt.rgba(LingmoUI.Theme.textColor.r, LingmoUI.Theme.textColor.g,
-                                                                  LingmoUI.Theme.textColor.b, 0.08) : "transparent"
-                                Behavior on color { ColorAnimation { duration: 120 } }
-                                Accessible.role: Accessible.RadioButton
-                                Accessible.checked: active
-                                Accessible.name: modelData.text
-                                Label {
-                                    id: segLabel
-                                    anchors.centerIn: parent
-                                    text: seg.modelData.text
-                                    color: seg.active ? LingmoUI.Theme.highlightedTextColor : LingmoUI.Theme.textColor
-                                }
-                                HoverHandler { id: segHover; cursorShape: Qt.PointingHandCursor }
-                                TapHandler { onTapped: page.view = seg.modelData.key }
-                            }
-                        }
+                LingmoUI.SegmentedControl {
+                    readonly property var keys: ["day", "week", "month", "agenda"]
+                    model: [qsTr("Dia"), qsTr("Semana"), qsTr("Mês"), qsTr("Agenda")]
+                    currentIndex: keys.indexOf(page.view)
+                    onActivated: (index) => {
+                        page.view = keys[index]
+                        currentIndex = Qt.binding(() => keys.indexOf(page.view))
                     }
                 }
             }
 
-            LingmoUI.RoundedRect {
+            LingmoUI.Card {
                 Layout.fillWidth: true
                 Layout.fillHeight: true
-                radius: LingmoUI.Theme.mediumRadius
-                color: LingmoUI.Theme.secondBackgroundColor
                 clip: true
 
                 StackLayout {

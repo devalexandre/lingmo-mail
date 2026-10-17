@@ -98,7 +98,7 @@ TextField {
             radius: LingmoUI.Theme.mediumRadius
             color: LingmoUI.Theme.secondBackgroundColor
             border.width: 1
-            border.color: LingmoUI.Theme.darkMode ? Qt.rgba(1, 1, 1, 0.12) : Qt.rgba(0, 0, 0, 0.12)
+            border.color: LingmoUI.Theme.borderColor
         }
 
         contentItem: ListView {
@@ -120,10 +120,9 @@ TextField {
                     anchors.fill: parent
                     radius: LingmoUI.Theme.smallRadius
                     color: entry.ListView.isCurrentItem ? LingmoUI.Theme.highlightColor
-                         : hover.containsMouse ? Qt.rgba(LingmoUI.Theme.textColor.r, LingmoUI.Theme.textColor.g,
-                                                         LingmoUI.Theme.textColor.b, 0.1)
+                         : hover.containsMouse ? LingmoUI.Theme.hoverColor
                          : "transparent"
-                    Behavior on color { ColorAnimation { duration: 120 } }
+                    Behavior on color { ColorAnimation { duration: LingmoUI.Units.veryShortDuration } }
                 }
                 MouseArea {
                     id: hover
@@ -140,6 +139,7 @@ TextField {
                     anchors.rightMargin: LingmoUI.Units.largeSpacing
                     spacing: 0
                     Label {
+                        font.pointSize: LingmoUI.Units.fontBody
                         Layout.fillWidth: true
                         text: entry.modelData.name || entry.modelData.address
                         color: entry.ListView.isCurrentItem ? LingmoUI.Theme.highlightedTextColor : LingmoUI.Theme.textColor
@@ -150,8 +150,8 @@ TextField {
                         Layout.fillWidth: true
                         visible: !!entry.modelData.name
                         text: entry.modelData.address + (entry.modelData.collected ? "  ·  " + qsTr("coletado") : "")
-                        color: entry.ListView.isCurrentItem ? LingmoUI.Theme.highlightedTextColor : LingmoUI.Theme.disabledTextColor
-                        font.pointSize: LingmoUI.Theme.fontSize * 0.85
+                        color: entry.ListView.isCurrentItem ? LingmoUI.Theme.highlightedTextColor : LingmoUI.Theme.secondaryTextColor
+                        font.pointSize: LingmoUI.Units.fontCaption
                         elide: Text.ElideRight
                         textFormat: Text.PlainText
                     }

@@ -40,8 +40,8 @@ AbstractButton {
                                : LingmoUI.Theme.alternateBackgroundColor
         border.width: 1
         border.color: popup.visible ? LingmoUI.Theme.highlightColor
-                                    : LingmoUI.Theme.darkMode ? Qt.rgba(1, 1, 1, 0.08) : Qt.rgba(0, 0, 0, 0.08)
-        Behavior on color { ColorAnimation { duration: 120 } }
+                                    : LingmoUI.Theme.borderColor
+        Behavior on color { ColorAnimation { duration: LingmoUI.Units.veryShortDuration } }
     }
 
     contentItem: Label {
@@ -67,7 +67,7 @@ AbstractButton {
             radius: LingmoUI.Theme.mediumRadius
             color: LingmoUI.Theme.secondBackgroundColor
             border.width: 1
-            border.color: LingmoUI.Theme.darkMode ? Qt.rgba(1, 1, 1, 0.12) : Qt.rgba(0, 0, 0, 0.12)
+            border.color: LingmoUI.Theme.borderColor
         }
 
         contentItem: CalendarMiniMonth {
