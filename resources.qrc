@@ -1,6 +1,7 @@
 <RCC>
     <qresource prefix="/">
         <file>qml/Main.qml</file>
+        <file>qml/MailIsland.qml</file>
         <file>qml/AccountsPane.qml</file>
         <file>qml/MessageList.qml</file>
         <file>qml/MessageReader.qml</file>

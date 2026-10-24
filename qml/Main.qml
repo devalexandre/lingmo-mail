@@ -61,6 +61,9 @@ LingmoUI.Window {
         composer.compose(draft || {})
     }
 
+    // Sending shows up in the status bar's Island
+    MailIsland {}
+
     Shortcut { sequence: "Ctrl+N"; enabled: Mail.currentAccountId !== "" && !rootWindow.dialogOpen; onActivated: rootWindow.compose({}) }
     Shortcut { sequence: "F5"; onActivated: Mail.refresh() }
     Shortcut { sequence: "Ctrl+R"; enabled: !!Mail.message.loaded && !rootWindow.dialogOpen; onActivated: rootWindow.compose(Mail.replyDraft()) }

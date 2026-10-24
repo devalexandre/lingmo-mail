@@ -1025,7 +1025,12 @@ def inbox(a):
     return items
 
 
-def read_message(a, uid, folder_path='INBOX'):
+def read_message(a, uid, folder_path='INBOX', peek=False):
+    return parse_message(fetch_raw(a, uid, folder_path, peek), str(uid))
+
+
+def fetch_raw(a, uid, folder_path='INBOX', peek=False):
+    """The raw message; marks it read unless peek (the assistant's workflows only peek)."""
     uid = str(uid)
     pw, oauth = credentials(a)
     with incoming(a, pw, oauth) as c:
@@ -1041,10 +1046,11 @@ def read_message(a, uid, folder_path='INBOX'):
             if status != 'OK': raise ValueError('Não foi possível ler a mensagem.')
             raw = b''.join(v[1] for v in data if isinstance(v, tuple))
             # Opening a message marks it read, explicitly (the fetch above never does)
-            try:
-                c.uid('STORE', uid, '+FLAGS.SILENT', '(\\Seen)')
-            except imaplib.IMAP4.error:
-                pass
+            if not peek:
+                try:
+                    c.uid('STORE', uid, '+FLAGS.SILENT', '(\\Seen)')
+                except imaplib.IMAP4.error:
+                    pass
         else:
             _, entries, _ = c.uidl()
             number = next((int(x.split()[0]) for x in entries if x.split()[1].decode() == uid), None)
@@ -1053,7 +1059,48 @@ def read_message(a, uid, folder_path='INBOX'):
             if size > LIMIT: raise ValueError('Mensagem maior que 20 MB.')
             _, lines, _ = c.retr(number); raw = b'\r\n'.join(lines)
     if len(raw) > LIMIT: raise ValueError('Mensagem maior que 20 MB.')
-    return parse_message(raw, uid)
+    return raw
+
+
+def safe_filename(name, used):
+    """A plain file name for an attachment: no path, no hidden file, unique in its folder."""
+    name = os.path.basename(str(name or '').replace('\\', '/')).strip().lstrip('.')
+    name = re.sub(r'[\x00-\x1f/]', '_', name)[:150] or 'Anexo'
+    stem, dot, ext = name.rpartition('.')
+    if not dot:
+        stem, ext = name, ''
+    candidate, n = name, 2
+    while candidate.lower() in used:
+        candidate = '%s (%d)%s' % (stem, n, ('.' + ext) if ext else '')
+        n += 1
+    used.add(candidate.lower())
+    return candidate
+
+
+def save_attachments(a, req):
+    """Writes the attachments of one message into an existing folder; never
+    overwrites (O_EXCL, numbered names) and never follows symlinks. Used by
+    Lingmo Assistant, which checks the folder against its allowed folders."""
+    dest = Path(str(req.get('dest') or ''))
+    if not dest.is_absolute() or not dest.is_dir() or dest.is_symlink():
+        raise ValueError('Pasta de destino inválida.')
+    msg = email.message_from_bytes(fetch_raw(a, req['message'], req.get('folder') or 'INBOX', peek=True),
+                                   policy=email.policy.default)
+    used = {p.name.lower() for p in dest.iterdir()}
+    saved = []
+    for part in msg.iter_attachments():
+        payload = part.get_payload(decode=True)
+        if payload is None:
+            continue
+        name = safe_filename(part.get_filename() or 'Anexo', used)
+        target = dest / name
+        fd = os.open(target, os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW | os.O_CLOEXEC, 0o644)
+        with os.fdopen(fd, 'wb') as f:
+            f.write(payload)
+        saved.append(str(target))
+        if len(saved) >= 50:
+            break
+    return {'saved': saved}
 
 
 def message_ids(value):
@@ -1301,7 +1348,8 @@ def dispatch(req):
     a = account_by_id(req.get('id'))
     if op == 'list': return list_messages(a, req)
     if op == 'check': return check_account(a)
-    if op == 'read': return read_message(a, req['message'], req.get('folder') or 'INBOX')
+    if op == 'read': return read_message(a, req['message'], req.get('folder') or 'INBOX', bool(req.get('peek')))
+    if op == 'saveAttachments': return save_attachments(a, req)
     if op == 'act': return act(a, req)
     if op == 'send': return send(a, req['draft'])
     if op == 'calendarReply': return send_calendar_reply(a, req)
