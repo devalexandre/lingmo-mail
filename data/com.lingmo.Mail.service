@@ -1,0 +1,3 @@
+[D-BUS Service]
+Name=com.lingmo.Mail
+Exec=/usr/bin/lingmo-mail --intents

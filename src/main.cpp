@@ -27,6 +27,9 @@
 #include "mailbridge.h"
 #include "calendarbridge.h"
 #include "reminderservice.h"
+#ifdef HAVE_LINGMO_INTENTS
+#include "mailintents.h"
+#endif
 
 // The Lingmo platform theme doesn't always hand the icon theme over at startup:
 // use the one set in Lingmo Settings.
@@ -59,6 +62,11 @@ int main(int argc, char *argv[])
     // Background reminders (XDG autostart): no window, no QML
     if (ReminderService::requested(argc, argv))
         return ReminderService::runHeadless(argc, argv);
+#ifdef HAVE_LINGMO_INTENTS
+    // App actions for the Assistant, Flows and Spotlight (D-Bus activation): no window
+    if (MailIntents::requested(argc, argv))
+        return MailIntents::run(argc, argv);
+#endif
 
     QApplication app(argc, argv);
     app.setOrganizationName(QStringLiteral("lingmoos"));

@@ -1,0 +1,881 @@
+{
+  "format": "lingmo-intents",
+  "version": 1,
+  "app": "lingmo-mail",
+  "name": {
+    "en": "Mail",
+    "pt_BR": "E-mail"
+  },
+  "icon": "lingmo-mail",
+  "desktop": "lingmo-mail.desktop",
+  "dbus": {
+    "service": "com.lingmo.Mail",
+    "path": "/Intents"
+  },
+  "intents": [
+    {
+      "id": "mail.send",
+      "title": {
+        "en": "Send email",
+        "pt_BR": "Enviar e-mail"
+      },
+      "description": {
+        "en": "Sends an email from one of your Lingmo Mail accounts.",
+        "pt_BR": "Envia um e-mail por uma das suas contas do Lingmo Mail."
+      },
+      "summary": {
+        "en": "Send an email to {to}",
+        "pt_BR": "Enviar e-mail para {to}"
+      },
+      "icon": "mail-send",
+      "capabilities": [
+        "send"
+      ],
+      "assistantTool": "mail_write",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "account": {
+            "type": "string",
+            "title": {
+              "en": "Account (id or address)",
+              "pt_BR": "Conta (id ou endereço)"
+            },
+            "default": "",
+            "maxLength": 200,
+            "description": {
+              "en": "Empty: the first account",
+              "pt_BR": "Vazio: a primeira conta"
+            }
+          },
+          "to": {
+            "type": "string",
+            "title": {
+              "en": "To",
+              "pt_BR": "Para"
+            },
+            "format": "email-list"
+          },
+          "cc": {
+            "type": "string",
+            "title": {
+              "en": "Cc",
+              "pt_BR": "Cc"
+            },
+            "format": "email-list"
+          },
+          "subject": {
+            "type": "string",
+            "title": {
+              "en": "Subject",
+              "pt_BR": "Assunto"
+            },
+            "minLength": 1,
+            "maxLength": 300
+          },
+          "body": {
+            "type": "string",
+            "title": {
+              "en": "Message",
+              "pt_BR": "Mensagem"
+            },
+            "minLength": 1,
+            "maxLength": 200000,
+            "x-multiline": true
+          }
+        },
+        "required": [
+          "to",
+          "subject",
+          "body"
+        ]
+      },
+      "result": {
+        "type": "object",
+        "properties": {
+          "to": {
+            "type": "string",
+            "title": {
+              "en": "To",
+              "pt_BR": "Para"
+            }
+          },
+          "subject": {
+            "type": "string",
+            "title": {
+              "en": "Subject",
+              "pt_BR": "Assunto"
+            }
+          },
+          "account": {
+            "type": "string",
+            "title": {
+              "en": "Sent from",
+              "pt_BR": "Enviado por"
+            }
+          }
+        }
+      },
+      "examples": {
+        "pt_BR": [
+          "enviar e-mail para {to}",
+          "mandar email para {to} sobre {subject}",
+          "escrever e-mail para {to}"
+        ],
+        "en": [
+          "send an email to {to}",
+          "email {to} about {subject}",
+          "write an email to {to}"
+        ]
+      }
+    },
+    {
+      "id": "mail.reply",
+      "title": {
+        "en": "Reply to email",
+        "pt_BR": "Responder e-mail"
+      },
+      "description": {
+        "en": "Replies to a message, quoting it, from the account that received it.",
+        "pt_BR": "Responde a uma mensagem, citando-a, pela conta que a recebeu."
+      },
+      "icon": "mail-reply-sender",
+      "capabilities": [
+        "send"
+      ],
+      "assistantTool": "mail_write",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "account": {
+            "type": "string",
+            "title": {
+              "en": "Account (id or address)",
+              "pt_BR": "Conta (id ou endereço)"
+            },
+            "default": "",
+            "maxLength": 200,
+            "description": {
+              "en": "Empty: the first account",
+              "pt_BR": "Vazio: a primeira conta"
+            }
+          },
+          "message": {
+            "type": "string",
+            "title": {
+              "en": "Message (id)",
+              "pt_BR": "Mensagem (id)"
+            },
+            "pattern": "[A-Za-z0-9._-]{1,80}"
+          },
+          "folder": {
+            "type": "string",
+            "title": {
+              "en": "Mail folder",
+              "pt_BR": "Pasta do e-mail"
+            },
+            "default": "INBOX",
+            "maxLength": 200
+          },
+          "body": {
+            "type": "string",
+            "title": {
+              "en": "Reply",
+              "pt_BR": "Resposta"
+            },
+            "minLength": 1,
+            "maxLength": 200000,
+            "x-multiline": true
+          }
+        },
+        "required": [
+          "message",
+          "body"
+        ]
+      },
+      "result": {
+        "type": "object",
+        "properties": {
+          "to": {
+            "type": "string",
+            "title": {
+              "en": "To",
+              "pt_BR": "Para"
+            }
+          },
+          "subject": {
+            "type": "string",
+            "title": {
+              "en": "Subject",
+              "pt_BR": "Assunto"
+            }
+          }
+        }
+      },
+      "examples": {
+        "pt_BR": [
+          "responder e-mail {message}",
+          "responder a mensagem {message}"
+        ],
+        "en": [
+          "reply to email {message}",
+          "reply to message {message}"
+        ]
+      }
+    },
+    {
+      "id": "mail.search",
+      "title": {
+        "en": "Search email",
+        "pt_BR": "Buscar e-mails"
+      },
+      "description": {
+        "en": "Lists or searches messages of a folder without marking them as read.",
+        "pt_BR": "Lista ou busca mensagens de uma pasta sem marcá-las como lidas."
+      },
+      "summary": {
+        "en": "Search email for “{query}”",
+        "pt_BR": "Buscar e-mails com «{query}»"
+      },
+      "icon": "mail-search",
+      "capabilities": [
+        "read"
+      ],
+      "assistantTool": "mail_read",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "account": {
+            "type": "string",
+            "title": {
+              "en": "Account (id or address)",
+              "pt_BR": "Conta (id ou endereço)"
+            },
+            "default": "",
+            "maxLength": 200,
+            "description": {
+              "en": "Empty: the first account",
+              "pt_BR": "Vazio: a primeira conta"
+            }
+          },
+          "folder": {
+            "type": "string",
+            "title": {
+              "en": "Mail folder",
+              "pt_BR": "Pasta do e-mail"
+            },
+            "default": "INBOX",
+            "maxLength": 200
+          },
+          "query": {
+            "type": "string",
+            "title": {
+              "en": "Search for",
+              "pt_BR": "Procurar"
+            },
+            "default": "",
+            "maxLength": 200
+          },
+          "field": {
+            "type": "string",
+            "title": {
+              "en": "Search in",
+              "pt_BR": "Procurar em"
+            },
+            "enum": [
+              "text",
+              "from",
+              "subject"
+            ],
+            "default": "text"
+          },
+          "unreadOnly": {
+            "type": "boolean",
+            "default": false,
+            "title": {
+              "en": "Unread only",
+              "pt_BR": "Só não lidas"
+            }
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 200,
+            "default": 20,
+            "title": {
+              "en": "At most",
+              "pt_BR": "No máximo"
+            }
+          }
+        }
+      },
+      "result": {
+        "type": "object",
+        "properties": {
+          "count": {
+            "type": "integer",
+            "title": {
+              "en": "Messages",
+              "pt_BR": "Mensagens"
+            }
+          },
+          "messages": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            },
+            "title": {
+              "en": "Messages",
+              "pt_BR": "Mensagens"
+            }
+          },
+          "text": {
+            "type": "string",
+            "title": {
+              "en": "Summary",
+              "pt_BR": "Resumo"
+            }
+          }
+        }
+      },
+      "examples": {
+        "pt_BR": [
+          "buscar e-mails de {query}",
+          "procurar e-mail {query}",
+          "e-mails sobre {query}"
+        ],
+        "en": [
+          "search email for {query}",
+          "find emails about {query}"
+        ]
+      }
+    },
+    {
+      "id": "mail.read",
+      "title": {
+        "en": "Read email",
+        "pt_BR": "Ler e-mail"
+      },
+      "description": {
+        "en": "Reads one message without marking it as read (peek).",
+        "pt_BR": "Lê uma mensagem sem marcá-la como lida."
+      },
+      "icon": "mail-read",
+      "capabilities": [
+        "read"
+      ],
+      "assistantTool": "mail_read",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "account": {
+            "type": "string",
+            "title": {
+              "en": "Account (id or address)",
+              "pt_BR": "Conta (id ou endereço)"
+            },
+            "default": "",
+            "maxLength": 200,
+            "description": {
+              "en": "Empty: the first account",
+              "pt_BR": "Vazio: a primeira conta"
+            }
+          },
+          "message": {
+            "type": "string",
+            "title": {
+              "en": "Message (id)",
+              "pt_BR": "Mensagem (id)"
+            },
+            "pattern": "[A-Za-z0-9._-]{1,80}"
+          },
+          "folder": {
+            "type": "string",
+            "title": {
+              "en": "Mail folder",
+              "pt_BR": "Pasta do e-mail"
+            },
+            "default": "INBOX",
+            "maxLength": 200
+          }
+        },
+        "required": [
+          "message"
+        ]
+      },
+      "result": {
+        "type": "object",
+        "properties": {
+          "subject": {
+            "type": "string",
+            "title": {
+              "en": "Subject",
+              "pt_BR": "Assunto"
+            }
+          },
+          "sender": {
+            "type": "string",
+            "title": {
+              "en": "From",
+              "pt_BR": "De"
+            }
+          },
+          "date": {
+            "type": "string",
+            "title": {
+              "en": "Date",
+              "pt_BR": "Data"
+            }
+          },
+          "body": {
+            "type": "string",
+            "title": {
+              "en": "Text",
+              "pt_BR": "Texto"
+            }
+          },
+          "attachments": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "title": {
+              "en": "Attachments",
+              "pt_BR": "Anexos"
+            }
+          }
+        }
+      },
+      "examples": {
+        "pt_BR": [
+          "ler e-mail {message}",
+          "abrir mensagem {message}"
+        ],
+        "en": [
+          "read email {message}"
+        ]
+      }
+    },
+    {
+      "id": "mail.saveAttachments",
+      "title": {
+        "en": "Save attachments",
+        "pt_BR": "Salvar anexos"
+      },
+      "description": {
+        "en": "Saves the attachments of a message into a folder (never replaces files).",
+        "pt_BR": "Salva os anexos de uma mensagem numa pasta (nunca substitui arquivos)."
+      },
+      "icon": "mail-attachment",
+      "capabilities": [
+        "read",
+        "create"
+      ],
+      "assistantTool": "files_write",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "account": {
+            "type": "string",
+            "title": {
+              "en": "Account (id or address)",
+              "pt_BR": "Conta (id ou endereço)"
+            },
+            "default": "",
+            "maxLength": 200,
+            "description": {
+              "en": "Empty: the first account",
+              "pt_BR": "Vazio: a primeira conta"
+            }
+          },
+          "message": {
+            "type": "string",
+            "title": {
+              "en": "Message (id)",
+              "pt_BR": "Mensagem (id)"
+            },
+            "pattern": "[A-Za-z0-9._-]{1,80}"
+          },
+          "folder": {
+            "type": "string",
+            "title": {
+              "en": "Mail folder",
+              "pt_BR": "Pasta do e-mail"
+            },
+            "default": "INBOX",
+            "maxLength": 200
+          },
+          "dest": {
+            "type": "string",
+            "title": {
+              "en": "Save in",
+              "pt_BR": "Salvar em"
+            },
+            "format": "folder"
+          }
+        },
+        "required": [
+          "message",
+          "dest"
+        ]
+      },
+      "result": {
+        "type": "object",
+        "properties": {
+          "files": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "title": {
+              "en": "Files",
+              "pt_BR": "Arquivos"
+            }
+          },
+          "count": {
+            "type": "integer",
+            "title": {
+              "en": "Saved",
+              "pt_BR": "Salvos"
+            }
+          }
+        }
+      },
+      "examples": {
+        "pt_BR": [
+          "salvar anexos do e-mail {message} em {dest}"
+        ],
+        "en": [
+          "save attachments of {message} to {dest}"
+        ]
+      }
+    },
+    {
+      "id": "calendar.event.create",
+      "title": {
+        "en": "Create event",
+        "pt_BR": "Criar evento"
+      },
+      "description": {
+        "en": "Creates an event in the Lingmo Mail calendar.",
+        "pt_BR": "Cria um evento no calendário do Lingmo Mail."
+      },
+      "summary": {
+        "en": "Create “{title}” on {start}",
+        "pt_BR": "Criar «{title}» em {start}"
+      },
+      "icon": "appointment-new",
+      "capabilities": [
+        "create"
+      ],
+      "assistantTool": "calendar_write",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "title": {
+              "en": "Title",
+              "pt_BR": "Título"
+            },
+            "minLength": 1,
+            "maxLength": 500
+          },
+          "start": {
+            "type": "string",
+            "title": {
+              "en": "Start",
+              "pt_BR": "Início"
+            },
+            "format": "date-time"
+          },
+          "duration": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 10080,
+            "default": 60,
+            "title": {
+              "en": "Duration (min)",
+              "pt_BR": "Duração (min)"
+            }
+          },
+          "allDay": {
+            "type": "boolean",
+            "default": false,
+            "title": {
+              "en": "All day",
+              "pt_BR": "Dia inteiro"
+            }
+          },
+          "location": {
+            "type": "string",
+            "title": {
+              "en": "Location",
+              "pt_BR": "Local"
+            },
+            "default": "",
+            "maxLength": 500
+          },
+          "notes": {
+            "type": "string",
+            "title": {
+              "en": "Notes",
+              "pt_BR": "Notas"
+            },
+            "default": "",
+            "maxLength": 20000,
+            "x-multiline": true
+          },
+          "reminder": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 40320,
+            "default": 10,
+            "title": {
+              "en": "Alert (min before)",
+              "pt_BR": "Alerta (min antes)"
+            }
+          }
+        },
+        "required": [
+          "title",
+          "start"
+        ]
+      },
+      "result": {
+        "type": "object",
+        "properties": {
+          "uid": {
+            "type": "string",
+            "title": {
+              "en": "Event id",
+              "pt_BR": "Id do evento"
+            }
+          },
+          "start": {
+            "type": "string",
+            "title": {
+              "en": "Start",
+              "pt_BR": "Início"
+            }
+          },
+          "end": {
+            "type": "string",
+            "title": {
+              "en": "End",
+              "pt_BR": "Fim"
+            }
+          }
+        }
+      },
+      "examples": {
+        "pt_BR": [
+          "criar evento {title} em {start}",
+          "marcar {title} {start}",
+          "agendar {title} para {start}"
+        ],
+        "en": [
+          "create event {title} at {start}",
+          "schedule {title} on {start}"
+        ]
+      }
+    },
+    {
+      "id": "tasks.create",
+      "title": {
+        "en": "Create task",
+        "pt_BR": "Criar tarefa"
+      },
+      "description": {
+        "en": "Creates a task in Lingmo Mail.",
+        "pt_BR": "Cria uma tarefa no Lingmo Mail."
+      },
+      "summary": {
+        "en": "Create the task “{title}”",
+        "pt_BR": "Criar a tarefa «{title}»"
+      },
+      "icon": "view-task-add",
+      "capabilities": [
+        "create"
+      ],
+      "assistantTool": "calendar_write",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "title": {
+              "en": "Title",
+              "pt_BR": "Título"
+            },
+            "minLength": 1,
+            "maxLength": 500
+          },
+          "due": {
+            "type": "string",
+            "title": {
+              "en": "Due (date or date and time)",
+              "pt_BR": "Prazo (data ou data e hora)"
+            },
+            "default": "",
+            "maxLength": 20
+          },
+          "notes": {
+            "type": "string",
+            "title": {
+              "en": "Notes",
+              "pt_BR": "Notas"
+            },
+            "default": "",
+            "maxLength": 20000,
+            "x-multiline": true
+          },
+          "priority": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 9,
+            "default": 0,
+            "title": {
+              "en": "Priority (0-9)",
+              "pt_BR": "Prioridade (0-9)"
+            }
+          }
+        },
+        "required": [
+          "title"
+        ]
+      },
+      "result": {
+        "type": "object",
+        "properties": {
+          "uid": {
+            "type": "string",
+            "title": {
+              "en": "Task id",
+              "pt_BR": "Id da tarefa"
+            }
+          },
+          "title": {
+            "type": "string",
+            "title": {
+              "en": "Title",
+              "pt_BR": "Título"
+            }
+          },
+          "due": {
+            "type": "string",
+            "title": {
+              "en": "Due",
+              "pt_BR": "Prazo"
+            }
+          }
+        }
+      },
+      "examples": {
+        "pt_BR": [
+          "criar tarefa {title}",
+          "nova tarefa {title}",
+          "lembrar de {title}"
+        ],
+        "en": [
+          "create task {title}",
+          "new task {title}",
+          "remind me to {title}"
+        ]
+      }
+    },
+    {
+      "id": "contacts.create",
+      "title": {
+        "en": "Add contact",
+        "pt_BR": "Adicionar contato"
+      },
+      "description": {
+        "en": "Creates a contact in Lingmo Mail (never edits existing ones).",
+        "pt_BR": "Cria um contato no Lingmo Mail (nunca altera os existentes)."
+      },
+      "summary": {
+        "en": "Add contact {name}",
+        "pt_BR": "Adicionar o contato {name}"
+      },
+      "icon": "contact-new",
+      "capabilities": [
+        "create"
+      ],
+      "assistantTool": "mail_write",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "title": {
+              "en": "Name",
+              "pt_BR": "Nome"
+            },
+            "minLength": 1,
+            "maxLength": 200
+          },
+          "email": {
+            "type": "string",
+            "title": {
+              "en": "Email",
+              "pt_BR": "E-mail"
+            },
+            "format": "email"
+          },
+          "phone": {
+            "type": "string",
+            "title": {
+              "en": "Phone",
+              "pt_BR": "Telefone"
+            },
+            "default": "",
+            "maxLength": 60
+          },
+          "notes": {
+            "type": "string",
+            "title": {
+              "en": "Notes",
+              "pt_BR": "Notas"
+            },
+            "default": "",
+            "maxLength": 4000,
+            "x-multiline": true
+          }
+        },
+        "required": [
+          "name",
+          "email"
+        ]
+      },
+      "result": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "title": {
+              "en": "Name",
+              "pt_BR": "Nome"
+            }
+          },
+          "email": {
+            "type": "string",
+            "title": {
+              "en": "Email",
+              "pt_BR": "E-mail"
+            }
+          }
+        }
+      },
+      "examples": {
+        "pt_BR": [
+          "adicionar contato {name} {email}",
+          "novo contato {name} {email}"
+        ],
+        "en": [
+          "add contact {name} {email}"
+        ]
+      }
+    }
+  ]
+}

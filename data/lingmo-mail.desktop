@@ -14,3 +14,4 @@ Keywords=mail;email;e-mail;imap;pop3;smtp;gmail;outlook;
 Keywords[pt_BR]=correio;email;e-mail;imap;pop3;smtp;gmail;outlook;mensagens;
 StartupNotify=true
 SingleMainWindow=true
+X-Lingmo-Intents=mail.send;mail.reply;mail.search;mail.read;mail.saveAttachments;calendar.event.create;tasks.create;contacts.create;
